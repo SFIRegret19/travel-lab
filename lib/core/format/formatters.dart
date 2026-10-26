@@ -52,6 +52,13 @@ String formatReviews(int n) => '$n ${_plural(n, 'отзыв', 'отзыва', '�
 String formatFoundOffers(int n) =>
     'Нашли $n ${_plural(n, 'предложение', 'предложения', 'предложений')}';
 
+/// «Осталось 1 номер», «Осталось 3 номера», «Осталось 5 номеров».
+String formatRoomsLeft(int n) =>
+    'Осталось $n ${_plural(n, 'номер', 'номера', 'номеров')}';
+
+/// «25 сен».
+String formatDayMonth(DateTime d) => '${d.day} ${_shortMonths[d.month - 1]}';
+
 /// «2,7 км до центра».
 String formatDistance(double km) =>
     '${km.toStringAsFixed(1).replaceAll('.', ',')} км до центра';

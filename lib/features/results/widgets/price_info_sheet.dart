@@ -6,26 +6,54 @@ import '../../../data/models/hotel.dart';
 
 /// Шторка «Информация о цене» для отеля со скидкой.
 Future<void> showPriceInfoSheet(BuildContext context, Hotel hotel, int nights) {
+  return showPriceBreakdownSheet(
+    context,
+    total: hotel.price * nights,
+    before: (hotel.oldPrice ?? hotel.price) * nights,
+    percent: hotel.discountPercent ?? 0,
+    nights: nights,
+  );
+}
+
+/// Та же шторка по готовым суммам за весь срок: цена до скидки, скидка
+/// в процентах и итог.
+Future<void> showPriceBreakdownSheet(
+  BuildContext context, {
+  required int total,
+  required int before,
+  required int percent,
+  required int nights,
+}) {
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: AppColors.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
     ),
-    builder: (_) => _PriceInfo(hotel: hotel, nights: nights),
+    builder: (_) => _PriceInfo(
+      total: total,
+      before: before,
+      percent: percent,
+      nights: nights,
+    ),
   );
 }
 
 class _PriceInfo extends StatelessWidget {
-  const _PriceInfo({required this.hotel, required this.nights});
+  const _PriceInfo({
+    required this.total,
+    required this.before,
+    required this.percent,
+    required this.nights,
+  });
 
-  final Hotel hotel;
+  final int total;
+  final int before;
+  final int percent;
   final int nights;
 
   @override
   Widget build(BuildContext context) {
-    final total = hotel.price * nights;
-    final before = (hotel.oldPrice ?? hotel.price) * nights;
     final discount = before - total;
 
     return SafeArea(
@@ -50,7 +78,7 @@ class _PriceInfo extends StatelessWidget {
               title: 'Приветственная скидка',
               subtitle: 'Скидка от объекта',
               value: '−${formatPrice(discount)}',
-              badge: '−${hotel.discountPercent}%',
+              badge: '−$percent%',
             ),
             const Divider(height: 36),
             Row(

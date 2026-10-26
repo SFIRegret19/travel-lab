@@ -307,15 +307,13 @@ void main() {
     expect(find.byKey(const Key('hotel_select')), findsOneWidget);
     await tester.tap(find.byKey(const Key('hotel_select')));
     await tester.pumpAndSettle();
-    expect(find.text('Выбор номера'), findsOneWidget);
+    expect(find.byKey(const Key('rooms_list')), findsOneWidget);
 
-    for (final step in const [
-      ('Выбрать', 'Оформление'),
-      ('Оплатить', 'Подтверждение'),
-    ]) {
-      await tester.tap(find.text(step.$1));
-      await tester.pumpAndSettle();
-      expect(find.text(step.$2), findsOneWidget);
-    }
+    await tester.tap(find.byKey(const Key('offer_select_r0_0')));
+    await tester.pumpAndSettle();
+    expect(find.text('Оформление'), findsOneWidget);
+    await tester.tap(find.text('Оплатить'));
+    await tester.pumpAndSettle();
+    expect(find.text('Подтверждение'), findsOneWidget);
   });
 }
