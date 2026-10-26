@@ -35,6 +35,7 @@ class ResultsScreen extends ConsumerWidget {
             toolbarHeight: 72,
             backgroundColor: AppColors.surface,
             surfaceTintColor: Colors.transparent,
+            clipBehavior: Clip.antiAlias,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
             ),

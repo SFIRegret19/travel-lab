@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/edge_fade.dart';
 import '../results_state.dart';
 import 'sort_sheet.dart';
 
@@ -18,41 +19,43 @@ class FilterChipsBar extends ConsumerWidget {
     final filters = ref.watch(filtersProvider);
     final filtersNotifier = ref.read(filtersProvider.notifier);
 
-    return SizedBox(
-      height: height,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-        children: [
-          const _Chip(key: Key('chip_filters'), icon: Icons.tune_rounded),
-          _Chip(
-            key: const Key('chip_sort'),
-            label: sort.label,
-            dropdown: true,
-            onTap: () async {
-              final picked = await showSortSheet(context, sort);
-              if (picked != null) ref.read(sortProvider.notifier).set(picked);
-            },
-          ),
-          const _Chip(key: Key('chip_price'), label: 'Цена', dropdown: true),
-          const _Chip(
-            key: Key('chip_discounts'),
-            label: 'Все скидки и бонусы',
-            dropdown: true,
-          ),
-          _Chip(
-            key: const Key('chip_free_cancel'),
-            label: 'Бесплатная отмена',
-            selected: filters.freeCancellation,
-            onTap: filtersNotifier.toggleFreeCancellation,
-          ),
-          _Chip(
-            key: const Key('chip_breakfast'),
-            label: 'С завтраком',
-            selected: filters.breakfast,
-            onTap: filtersNotifier.toggleBreakfast,
-          ),
-        ],
+    return EdgeFade(
+      child: SizedBox(
+        height: height,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+          children: [
+            const _Chip(key: Key('chip_filters'), icon: Icons.tune_rounded),
+            _Chip(
+              key: const Key('chip_sort'),
+              label: sort.label,
+              dropdown: true,
+              onTap: () async {
+                final picked = await showSortSheet(context, sort);
+                if (picked != null) ref.read(sortProvider.notifier).set(picked);
+              },
+            ),
+            const _Chip(key: Key('chip_price'), label: 'Цена', dropdown: true),
+            const _Chip(
+              key: Key('chip_discounts'),
+              label: 'Все скидки и бонусы',
+              dropdown: true,
+            ),
+            _Chip(
+              key: const Key('chip_free_cancel'),
+              label: 'Бесплатная отмена',
+              selected: filters.freeCancellation,
+              onTap: filtersNotifier.toggleFreeCancellation,
+            ),
+            _Chip(
+              key: const Key('chip_breakfast'),
+              label: 'С завтраком',
+              selected: filters.breakfast,
+              onTap: filtersNotifier.toggleBreakfast,
+            ),
+          ],
+        ),
       ),
     );
   }

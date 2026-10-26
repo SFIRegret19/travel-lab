@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/format/formatters.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/edge_fade.dart';
 import '../../core/widgets/photo_placeholder.dart';
 import '../../core/widgets/rating_badge.dart';
 import '../../data/mock_data.dart';
@@ -26,34 +27,38 @@ class HomeScreen extends ConsumerWidget {
           _Banner(onSearch: () => context.push(Routes.search)),
           _ServicesRow(onHotels: () => context.push(Routes.search)),
           const _SectionTitle('Продолжить поиск'),
-          SizedBox(
-            height: 76,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: recent.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 10),
-              itemBuilder: (context, i) => _RecentSearchCard(
-                params: recent[i],
-                onTap: () {
-                  ref.read(searchProvider.notifier).apply(recent[i]);
-                  context.push(Routes.results);
-                },
+          EdgeFade(
+            child: SizedBox(
+              height: 76,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: recent.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                itemBuilder: (context, i) => _RecentSearchCard(
+                  params: recent[i],
+                  onTap: () {
+                    ref.read(searchProvider.notifier).apply(recent[i]);
+                    context.push(Routes.results);
+                  },
+                ),
               ),
             ),
           ),
           const _SectionTitle('Недавно смотрели', trailing: 'Все'),
-          SizedBox(
-            height: 300,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: recentlyViewed.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 12),
-              itemBuilder: (context, i) => _HotelCard(
-                hotel: recentlyViewed[i],
-                onTap: () =>
-                    context.push(Routes.hotelPath(recentlyViewed[i].id)),
+          EdgeFade(
+            child: SizedBox(
+              height: 300,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: recentlyViewed.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
+                itemBuilder: (context, i) => _HotelCard(
+                  hotel: recentlyViewed[i],
+                  onTap: () =>
+                      context.push(Routes.hotelPath(recentlyViewed[i].id)),
+                ),
               ),
             ),
           ),
@@ -210,41 +215,47 @@ class _ServicesRow extends StatelessWidget {
       ('Поезда', Icons.train_rounded, null),
       ('Выходные', Icons.luggage_rounded, null),
     ];
-    return SizedBox(
-      height: 124,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: items.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 14),
-        itemBuilder: (context, i) {
-          final (label, icon, onTap) = items[i];
-          return GestureDetector(
-            onTap: onTap,
-            child: SizedBox(
-              width: 76,
-              child: Column(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(20),
+    return EdgeFade(
+      child: SizedBox(
+        height: 124,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: items.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 14),
+          itemBuilder: (context, i) {
+            final (label, icon, onTap) = items[i];
+            return GestureDetector(
+              onTap: onTap,
+              child: SizedBox(
+                width: 76,
+                child: Column(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: const Color(0xFFB9A8FF),
+                        size: 32,
+                      ),
                     ),
-                    child: Icon(icon, color: const Color(0xFFB9A8FF), size: 32),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
