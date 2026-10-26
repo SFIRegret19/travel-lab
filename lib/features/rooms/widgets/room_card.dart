@@ -341,9 +341,7 @@ class _OfferBox extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text(
-                    offer.refundable
-                        ? 'Бесплатная отмена до ${formatDayMonth(cancelUntil)}'
-                        : 'Оплата не возвращается',
+                    cancelText(offer, cancelUntil),
                     style: TextStyle(
                       fontSize: 16,
                       color: offer.refundable ? AppColors.ratingGreen : null,

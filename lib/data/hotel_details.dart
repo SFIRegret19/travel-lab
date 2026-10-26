@@ -134,3 +134,15 @@ HotelDetails detailsFor(Hotel h) {
     ],
   );
 }
+
+/// Время заезда и выезда в двух видах: «14:00 - 00:00» и «Заезд с 14:00 до 00:00».
+extension HotelDetailsTimes on HotelDetails {
+  String get checkInTime =>
+      checkIn.replaceAll('С ', '').replaceAll('\nдо ', ' - ');
+  String get checkOutTime =>
+      checkOut.replaceAll('С ', '').replaceAll('\nдо ', ' - ');
+  String get checkInRule =>
+      'Заезд ${checkIn.replaceAll('\n', ' ').replaceFirst('С', 'с')}';
+  String get checkOutRule =>
+      'Выезд ${checkOut.replaceAll('\n', ' ').replaceFirst('С', 'с')}';
+}

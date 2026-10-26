@@ -325,6 +325,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(pay);
     await tester.pumpAndSettle();
-    expect(find.text('Подтверждение'), findsOneWidget);
+    expect(find.text('Бронирование подтверждено'), findsOneWidget);
   });
 }

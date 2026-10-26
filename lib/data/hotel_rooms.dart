@@ -1,3 +1,4 @@
+import '../core/format/formatters.dart';
 import 'models/hotel.dart';
 
 /// Тариф на номер. Цены — за одну ночь, как и в каталоге.
@@ -188,3 +189,8 @@ DateTime freeCancelUntil(DateTime? checkIn, DateTime today) {
   final date = DateTime(day.year, day.month, day.day);
   return date.isBefore(today) ? today : date;
 }
+
+/// Строка про отмену под ценой тарифа и на оформлении.
+String cancelText(RoomOffer offer, DateTime until) => offer.refundable
+    ? 'Бесплатная отмена до ${formatDayMonth(until)}'
+    : 'Оплата не возвращается';

@@ -191,10 +191,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       lateCheckoutPrice: (hotel.price * 1.1 / 10).round() * 10,
       promoPercent: _promo == null ? 0 : promoCodes[_promo]!,
     );
-    final cancelText = offer.refundable
-        ? 'Бесплатная отмена до '
-              '${formatDayMonth(freeCancelUntil(params.checkIn, today))}'
-        : 'Оплата не возвращается';
+    final cancelLine = cancelText(
+      offer,
+      freeCancelUntil(params.checkIn, today),
+    );
     final payTitle = _mode == PayMode.split ? price.splitPart : price.total;
     final until = daysUntil == 0
         ? 'Заезд сегодня'
@@ -239,17 +239,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               checkIn: from,
               checkOut: to,
               daysUntil: daysUntil,
-              checkInTime: details.checkIn
-                  .replaceAll('С ', '')
-                  .replaceAll('\nдо ', ' - '),
-              checkOutTime: details.checkOut
-                  .replaceAll('С ', '')
-                  .replaceAll('\nдо ', ' - '),
+              checkInTime: details.checkInTime,
+              checkOutTime: details.checkOutTime,
             ),
             RoomSummaryCard(
               room: selection.room,
               offer: offer,
-              cancelText: cancelText,
+              cancelText: cancelLine,
             ),
             ServicesCard(
               priceLabel: 'До 23:00, ${formatPrice(price.lateCheckoutPrice)}',
@@ -257,10 +253,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               onChanged: (v) => setState(() => _lateCheckout = v),
             ),
             RulesCard(
-              checkIn:
-                  'Заезд ${details.checkIn.replaceAll('\n', ' ').replaceFirst('С', 'с')}',
-              checkOut:
-                  'Выезд ${details.checkOut.replaceAll('\n', ' ').replaceFirst('С', 'с')}',
+              checkIn: details.checkInRule,
+              checkOut: details.checkOutRule,
             ),
             SectionCard(
               title: 'Контакты покупателя',
@@ -342,7 +336,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
               child: Column(
                 children: [
-                  Text(cancelText, style: const TextStyle(fontSize: 15)),
+                  Text(cancelLine, style: const TextStyle(fontSize: 15)),
                   const SizedBox(height: 26),
                   Stack(
                     clipBehavior: Clip.none,

@@ -143,7 +143,7 @@ void main() {
     await tapKey(tester, 'checkout_pay');
     expect(find.text('Укажите почту'), findsOneWidget);
     expect(find.byKey(const Key('checkout_pay')), findsOneWidget);
-    expect(find.text('Подтверждение'), findsNothing);
+    expect(find.text('Бронирование подтверждено'), findsNothing);
   });
 
   testWidgets('способ оплаты и Сплит меняют кнопку', (tester) async {
@@ -162,11 +162,20 @@ void main() {
   testWidgets('оплата сохраняет заказ и ведёт к подтверждению', (tester) async {
     final container = await openCheckout(tester);
     await tapKey(tester, 'checkout_pay');
-    expect(find.text('Подтверждение'), findsOneWidget);
+    expect(find.text('Бронирование подтверждено'), findsOneWidget);
     final order = container.read(orderProvider)!;
     expect(order.total, 1035);
     expect(order.paidNow, 1035);
     expect(order.guestNames, ['Иванов Иван']);
     expect(order.selection.hotel.id, '3');
+  });
+
+  testWidgets('оплата частями списывает первый платёж', (tester) async {
+    final container = await openCheckout(tester);
+    await tapKey(tester, 'pay_mode_split');
+    await tapKey(tester, 'checkout_pay');
+    final order = container.read(orderProvider)!;
+    expect(order.total, 1035);
+    expect(order.paidNow, 259);
   });
 }
