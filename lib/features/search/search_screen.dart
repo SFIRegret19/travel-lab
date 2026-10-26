@@ -15,7 +15,10 @@ enum _Section { where, when, guests }
 
 /// Форма поиска: три раскрывающиеся секции (где, когда, гости).
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({super.key, this.editMode = false});
+
+  /// Форма открыта из выдачи для правки поиска: «Найти» возвращает к ней.
+  final bool editMode;
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -141,7 +144,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             calendarOpen: _open == _Section.when,
             params: params,
             onNext: () => _openSection(_Section.guests),
-            onSearch: () => context.push(Routes.results),
+            onSearch: () => widget.editMode
+                ? context.pop()
+                : context.push(Routes.results, extra: true),
           ),
         ],
       ),

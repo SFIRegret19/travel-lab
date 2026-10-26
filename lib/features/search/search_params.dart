@@ -30,6 +30,19 @@ class SearchParams {
   int get guests => adults + children;
   bool get hasFullRange => checkIn != null && checkOut != null;
 
+  /// Число ночей. Без дат считаем одну: поиск можно запустить и без них.
+  int get nights {
+    final from = checkIn;
+    final to = checkOut;
+    if (from == null || to == null) return 1;
+    final days = DateTime.utc(
+      to.year,
+      to.month,
+      to.day,
+    ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
+    return days < 1 ? 1 : days;
+  }
+
   /// [city], [checkIn] и [checkOut] можно сбросить в null только через
   /// [clearCity] и [clearDates], иначе null означает «не менять».
   SearchParams copyWith({

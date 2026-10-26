@@ -34,6 +34,15 @@ void main() {
     expect(formatGuests(21), '21 гость');
   });
 
+  test('ночи, отзывы и расстояние', () {
+    expect(formatNights(1), '1 ночь');
+    expect(formatNights(3), '3 ночи');
+    expect(formatNights(7), '7 ночей');
+    expect(formatReviews(1), '1 отзыв');
+    expect(formatReviews(608), '608 отзывов');
+    expect(formatDistance(2.7), '2,7 км до центра');
+  });
+
   test('цена с неразрывными пробелами', () {
     expect(formatPrice(1975), '1 975 ₽');
     expect(formatPrice(60000), '60 000 ₽');

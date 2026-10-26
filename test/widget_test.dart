@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_lab/app.dart';
+import 'package:travel_lab/core/router/app_router.dart';
+import 'package:travel_lab/core/router/routes.dart';
+import 'package:travel_lab/features/search/search_params.dart';
+import 'package:travel_lab/features/search/search_provider.dart';
 import 'package:travel_lab/core/time/today_provider.dart';
 
 void main() {
@@ -16,6 +20,43 @@ void main() {
     await loader.load();
   });
 
+  testWidgets('Пустая выдача предлагает сбросить фильтры', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.75;
+    addTearDown(tester.view.reset);
+
+    final container = ProviderContainer(
+      overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+    );
+    addTearDown(container.dispose);
+    // В каталоге у обеих квартир нет завтрака.
+    container
+        .read(searchProvider.notifier)
+        .setType(AccommodationType.apartments);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const TravelApp()),
+    );
+    appRouter.go(Routes.results);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('hotel_card_5')), findsOneWidget);
+
+    // Чип «С завтраком» в конце горизонтального списка: сначала прокрутка.
+    await tester.drag(
+      find.byKey(const Key('chip_sort')),
+      const Offset(-600, 0),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('chip_breakfast')));
+    await tester.pumpAndSettle();
+    expect(find.text('Ничего не найдено'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('reset_filters')));
+    await tester.pumpAndSettle();
+    expect(find.text('Ничего не найдено'), findsNothing);
+    expect(find.byKey(const Key('hotel_card_5')), findsOneWidget);
+  });
+
   testWidgets('Сценарий проходит от главного до подтверждения', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.75;
@@ -27,6 +68,8 @@ void main() {
         child: const TravelApp(),
       ),
     );
+    // Роутер глобальный и помнит позицию предыдущего теста.
+    appRouter.go(Routes.home);
     await tester.pumpAndSettle();
     expect(find.text('Продолжить поиск'), findsOneWidget);
 
@@ -60,10 +103,37 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const Key('search_button')));
     await tester.pumpAndSettle();
-    expect(find.text('Результаты'), findsOneWidget);
+    expect(find.byKey(const Key('results_pill')), findsOneWidget);
+    expect(find.text('Сочи'), findsOneWidget);
+
+    // Выдача: сортировка и быстрые фильтры, затем первая карточка.
+    expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
+    // Закрытие крестиком отменяет выбор в шторке.
+    await tester.tap(find.byKey(const Key('chip_sort')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('sort_pricier')));
+    await tester.tap(find.byKey(const Key('sort_close')));
+    await tester.pumpAndSettle();
+    expect(find.text('Популярные'), findsOneWidget);
+    expect(find.text('Сначала дороже'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('chip_sort')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('sort_cheaper')));
+    await tester.tap(find.byKey(const Key('sort_apply')));
+    await tester.pumpAndSettle();
+    expect(find.text('Сначала дешевле'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('chip_sort')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('sort_popular')));
+    await tester.tap(find.byKey(const Key('sort_apply')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('hotel_card_3')));
+    await tester.pumpAndSettle();
+    expect(find.text('Карточка отеля'), findsOneWidget);
 
     for (final step in const [
-      ('Открыть отель', 'Карточка отеля'),
       ('Выбрать номер', 'Выбор номера'),
       ('Выбрать', 'Оформление'),
       ('Оплатить', 'Подтверждение'),

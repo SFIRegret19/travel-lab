@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/time/today_provider.dart';
 import '../features/search/search_params.dart';
+import 'hotels_catalog.dart';
 import 'models/hotel.dart';
 
 const mockCities = [
@@ -32,25 +33,5 @@ final recentSearchesProvider = Provider<List<SearchParams>>((ref) {
   ];
 });
 
-/// «Недавно смотрели».
-const recentlyViewed = [
-  Hotel(
-    id: '1',
-    name: 'Копенгаген',
-    rating: 5.0,
-    address: 'Москва, улица Буженинова',
-    type: 'Гостиница',
-    price: 1975,
-    oldPrice: 2079,
-    imageHue: 12,
-  ),
-  Hotel(
-    id: '2',
-    name: 'The Loft',
-    rating: 4.9,
-    address: 'Москва, Тверская улица',
-    type: 'Гостиница',
-    price: 2079,
-    imageHue: 200,
-  ),
-];
+/// «Недавно смотрели»: отели из общего каталога.
+final List<Hotel> recentlyViewed = [hotelById('1')!, hotelById('2')!];

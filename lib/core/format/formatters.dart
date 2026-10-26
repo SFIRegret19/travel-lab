@@ -42,6 +42,16 @@ String _plural(int n, String one, String few, String many) {
   return many;
 }
 
+/// «1 ночь», «2 ночи», «5 ночей».
+String formatNights(int n) => '$n ${_plural(n, 'ночь', 'ночи', 'ночей')}';
+
+/// «1 отзыв», «2 отзыва», «608 отзывов».
+String formatReviews(int n) => '$n ${_plural(n, 'отзыв', 'отзыва', 'отзывов')}';
+
+/// «2,7 км до центра».
+String formatDistance(double km) =>
+    '${km.toStringAsFixed(1).replaceAll('.', ',')} км до центра';
+
 /// «1 гость», «2 гостя», «5 гостей».
 String formatGuests(int n) => '$n ${_plural(n, 'гость', 'гостя', 'гостей')}';
 

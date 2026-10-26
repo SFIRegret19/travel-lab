@@ -406,7 +406,7 @@ class _HotelCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    '${hotel.address} · ${hotel.type}',
+                    'Москва, ${hotel.street} · ${hotel.type}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

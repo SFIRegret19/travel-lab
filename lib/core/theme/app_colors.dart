@@ -13,9 +13,8 @@ abstract final class AppColors {
   static const accent = Color(0xFFEBBC00);
   static const onAccent = Color(0xFF000000);
 
-  static const ratingGreen = Color(0xFF02A30D);
-  static const ratingGreenBright = Color(0xFF0CBA0C);
-  static const discountPurple = Color(0xFF7B4DFF);
-  static const warningOrange = Color(0xFFF5A623);
+  static const ratingGreen = Color(0xFF0DBA0C);
+  static const discountPurple = Color(0xFF7659ED);
+  static const boltYellow = Color(0xFFE5B102);
   static const link = Color(0xFF055CE1);
 }

@@ -14,12 +14,18 @@ final appRouter = GoRouter(
   initialLocation: Routes.home,
   routes: [
     GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
-    GoRoute(path: Routes.search, builder: (_, _) => const SearchScreen()),
+    GoRoute(
+      path: Routes.search,
+      builder: (_, state) => SearchScreen(editMode: state.extra == true),
+    ),
     GoRoute(
       path: Routes.citySuggest,
       builder: (_, _) => const CitySuggestScreen(),
     ),
-    GoRoute(path: Routes.results, builder: (_, _) => const ResultsScreen()),
+    GoRoute(
+      path: Routes.results,
+      builder: (_, state) => ResultsScreen(fromSearch: state.extra == true),
+    ),
     GoRoute(
       path: Routes.hotel,
       builder: (_, state) => HotelScreen(hotelId: state.pathParameters['id']!),
