@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/checkout/checkout_screen.dart';
 import '../../features/confirmation/confirmation_screen.dart';
+import '../../features/map/map_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/hotel/hotel_screen.dart';
 import '../../features/hotel/reviews_screen.dart';
@@ -27,6 +28,7 @@ final appRouter = GoRouter(
       path: Routes.results,
       builder: (_, state) => ResultsScreen(fromSearch: state.extra == true),
     ),
+    GoRoute(path: Routes.map, builder: (_, _) => const MapScreen()),
     GoRoute(
       path: Routes.hotel,
       builder: (_, state) => HotelScreen(hotelId: state.pathParameters['id']!),
