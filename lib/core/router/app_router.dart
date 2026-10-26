@@ -6,6 +6,7 @@ import '../../features/home/home_screen.dart';
 import '../../features/hotel/hotel_screen.dart';
 import '../../features/results/results_screen.dart';
 import '../../features/rooms/rooms_screen.dart';
+import '../../features/search/city_suggest_screen.dart';
 import '../../features/search/search_screen.dart';
 import 'routes.dart';
 
@@ -14,6 +15,10 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
     GoRoute(path: Routes.search, builder: (_, _) => const SearchScreen()),
+    GoRoute(
+      path: Routes.citySuggest,
+      builder: (_, _) => const CitySuggestScreen(),
+    ),
     GoRoute(path: Routes.results, builder: (_, _) => const ResultsScreen()),
     GoRoute(
       path: Routes.hotel,

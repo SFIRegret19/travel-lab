@@ -2,6 +2,7 @@
 abstract final class Routes {
   static const home = '/';
   static const search = '/search';
+  static const citySuggest = '/search/city';
   static const results = '/results';
   static const hotel = '/hotel/:id';
   static const rooms = '/hotel/:id/rooms';

@@ -11,7 +11,8 @@ class ConfirmationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return PlaceholderScreen(
       title: 'Подтверждение',
-      description: 'Бронирование оформлено (в оригинале экран не снят, рисуем сами).',
+      description:
+          'Бронирование оформлено (в оригинале экран не снят, рисуем сами).',
       actions: [
         FilledButton(
           onPressed: () => context.go(Routes.home),
