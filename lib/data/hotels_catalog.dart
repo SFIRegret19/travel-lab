@@ -28,7 +28,9 @@ const hotelsCatalog = [
     price: 2079,
     badge: HotelBadge.appOnly,
     recommended: true,
-    breakfast: true,
+    meal: MealPlan.breakfast,
+    stars: 4,
+    parking: true,
     imageHue: 200,
   ),
   Hotel(
@@ -42,7 +44,8 @@ const hotelsCatalog = [
     price: 1975,
     oldPrice: 2079,
     freeCancellation: true,
-    breakfast: true,
+    meal: MealPlan.breakfast,
+    stars: 3,
     imageHue: 12,
   ),
   Hotel(
@@ -56,7 +59,9 @@ const hotelsCatalog = [
     price: 4590,
     badge: HotelBadge.appOnly,
     freeCancellation: true,
-    breakfast: true,
+    meal: MealPlan.breakfastDinner,
+    stars: 5,
+    parking: true,
     imageHue: 280,
   ),
   Hotel(
@@ -83,6 +88,7 @@ const hotelsCatalog = [
     distanceKm: 4.5,
     price: 790,
     badge: HotelBadge.fewRooms,
+    wifi: false,
     imageHue: 90,
   ),
   Hotel(
@@ -95,7 +101,9 @@ const hotelsCatalog = [
     distanceKm: 0.3,
     price: 5890,
     freeCancellation: true,
-    breakfast: true,
+    meal: MealPlan.breakfast,
+    stars: 4,
+    parking: true,
     imageHue: 330,
   ),
   Hotel(
@@ -108,7 +116,8 @@ const hotelsCatalog = [
     distanceKm: 2.2,
     price: 2450,
     oldPrice: 2722,
-    breakfast: true,
+    meal: MealPlan.breakfast,
+    stars: 3,
     imageHue: 20,
   ),
   Hotel(
@@ -120,6 +129,7 @@ const hotelsCatalog = [
     type: 'Апартаменты',
     distanceKm: 6.8,
     price: 1690,
+    parking: true,
     imageHue: 120,
   ),
   Hotel(
@@ -134,7 +144,9 @@ const hotelsCatalog = [
     badge: HotelBadge.appOnly,
     recommended: true,
     freeCancellation: true,
-    breakfast: true,
+    meal: MealPlan.allInclusive,
+    stars: 5,
+    parking: true,
     imageHue: 140,
   ),
   Hotel(
@@ -159,7 +171,9 @@ const hotelsCatalog = [
     distanceKm: 5.2,
     price: 3710,
     freeCancellation: true,
-    breakfast: true,
+    meal: MealPlan.breakfastDinner,
+    stars: 4,
+    parking: true,
     imageHue: 210,
   ),
 ];

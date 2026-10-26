@@ -16,20 +16,101 @@ enum SortOrder {
   final String label;
 }
 
-/// Фильтры выдачи. Дальше сюда добавятся цена, питание, рейтинг и прочее.
+/// Верхняя граница ползунка цены. Значение равно границе = «60 000+», то есть
+/// без ограничения сверху.
+const priceCap = 60000;
+
+/// Фильтры выдачи.
+///
+/// Правило объединения: внутри группы (типы размещения, питание, звёзды)
+/// условия соединяются через «или», между группами через «и».
+/// [breakfast] — быстрый чип «С завтраком»: подходит любой тип питания,
+/// кроме «Без питания». С выбором в [meals] он складывается по «и».
 class HotelFilters {
-  const HotelFilters({this.freeCancellation = false, this.breakfast = false});
+  const HotelFilters({
+    this.priceMin = 0,
+    this.priceMax = priceCap,
+    this.anyDiscount = false,
+    this.types = const {},
+    this.meals = const {},
+    this.breakfast = false,
+    this.freeCancellation = false,
+    this.minRating = 0,
+    this.stars = const {},
+    this.wifi = false,
+    this.parking = false,
+  });
 
-  final bool freeCancellation;
+  /// Границы цены за весь срок проживания, ₽.
+  final int priceMin;
+  final int priceMax;
+  final bool anyDiscount;
+  final Set<String> types;
+  final Set<MealPlan> meals;
   final bool breakfast;
+  final bool freeCancellation;
 
-  bool get isEmpty => !freeCancellation && !breakfast;
+  /// Порог рейтинга, 0 — без порога.
+  final double minRating;
+  final Set<int> stars;
+  final bool wifi;
+  final bool parking;
 
-  HotelFilters copyWith({bool? freeCancellation, bool? breakfast}) {
+  bool get hasPrice => priceMin > 0 || priceMax < priceCap;
+
+  bool get isEmpty =>
+      !hasPrice &&
+      !anyDiscount &&
+      types.isEmpty &&
+      meals.isEmpty &&
+      !breakfast &&
+      !freeCancellation &&
+      minRating == 0 &&
+      stars.isEmpty &&
+      !wifi &&
+      !parking;
+
+  HotelFilters copyWith({
+    int? priceMin,
+    int? priceMax,
+    bool? anyDiscount,
+    Set<String>? types,
+    Set<MealPlan>? meals,
+    bool? breakfast,
+    bool? freeCancellation,
+    double? minRating,
+    Set<int>? stars,
+    bool? wifi,
+    bool? parking,
+  }) {
     return HotelFilters(
-      freeCancellation: freeCancellation ?? this.freeCancellation,
+      priceMin: priceMin ?? this.priceMin,
+      priceMax: priceMax ?? this.priceMax,
+      anyDiscount: anyDiscount ?? this.anyDiscount,
+      types: types ?? this.types,
+      meals: meals ?? this.meals,
       breakfast: breakfast ?? this.breakfast,
+      freeCancellation: freeCancellation ?? this.freeCancellation,
+      minRating: minRating ?? this.minRating,
+      stars: stars ?? this.stars,
+      wifi: wifi ?? this.wifi,
+      parking: parking ?? this.parking,
     );
+  }
+
+  HotelFilters toggleType(String type) =>
+      copyWith(types: _toggled(types, type));
+  HotelFilters toggleMeal(MealPlan meal) =>
+      copyWith(meals: _toggled(meals, meal));
+  HotelFilters toggleStars(int count) =>
+      copyWith(stars: _toggled(stars, count));
+
+  /// Рейтинг выбирается порогом: повторное нажатие на тот же сбрасывает.
+  HotelFilters toggleMinRating(double value) =>
+      copyWith(minRating: minRating == value ? 0 : value);
+
+  static Set<T> _toggled<T>(Set<T> set, T value) {
+    return set.contains(value) ? ({...set}..remove(value)) : {...set, value};
   }
 }
 
@@ -51,6 +132,8 @@ final filtersProvider = NotifierProvider<FiltersNotifier, HotelFilters>(
 class FiltersNotifier extends Notifier<HotelFilters> {
   @override
   HotelFilters build() => const HotelFilters();
+
+  void apply(HotelFilters filters) => state = filters;
 
   void toggleFreeCancellation() {
     state = state.copyWith(freeCancellation: !state.freeCancellation);
@@ -108,8 +191,20 @@ bool _matches(Hotel h, SearchParams params, HotelFilters f) {
     case AccommodationType.apartments:
       if (!h.isApartment) return false;
   }
-  if (f.freeCancellation && !h.freeCancellation) return false;
+
+  final total = h.price * params.nights;
+  if (total < f.priceMin) return false;
+  if (f.priceMax < priceCap && total > f.priceMax) return false;
+
+  if (f.anyDiscount && h.oldPrice == null) return false;
+  if (f.types.isNotEmpty && !f.types.contains(h.type)) return false;
+  if (f.meals.isNotEmpty && !f.meals.contains(h.meal)) return false;
   if (f.breakfast && !h.breakfast) return false;
+  if (f.freeCancellation && !h.freeCancellation) return false;
+  if (h.rating < f.minRating) return false;
+  if (f.stars.isNotEmpty && !f.stars.contains(h.stars)) return false;
+  if (f.wifi && !h.wifi) return false;
+  if (f.parking && !h.parking) return false;
   return true;
 }
 

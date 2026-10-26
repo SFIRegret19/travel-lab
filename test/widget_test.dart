@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travel_lab/app.dart';
+import 'package:travel_lab/core/format/formatters.dart';
 import 'package:travel_lab/core/router/app_router.dart';
+import 'package:travel_lab/data/hotels_catalog.dart';
 import 'package:travel_lab/core/router/routes.dart';
 import 'package:travel_lab/features/search/search_params.dart';
 import 'package:travel_lab/features/search/search_provider.dart';
@@ -55,6 +57,63 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ничего не найдено'), findsNothing);
     expect(find.byKey(const Key('hotel_card_5')), findsOneWidget);
+  });
+
+  testWidgets('Шторка фильтров: применить, отбросить, ввести цену', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.75;
+    addTearDown(tester.view.reset);
+
+    final container = ProviderContainer(
+      overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const TravelApp()),
+    );
+    appRouter.go(Routes.results);
+    await tester.pumpAndSettle();
+
+    final all = hotelsCatalog.length;
+    final withBreakfast = hotelsCatalog.where((h) => h.breakfast).length;
+    expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
+
+    // Применить: живой счётчик меняется, список сокращается.
+    await tester.tap(find.byKey(const Key('chip_filters')));
+    await tester.pumpAndSettle();
+    expect(find.text(formatFoundOffers(all)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('quick_breakfast')));
+    await tester.pumpAndSettle();
+    expect(find.text(formatFoundOffers(withBreakfast)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('filters_apply')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('hotel_card_3')), findsNothing);
+
+    // Отбросить: изменения черновика не сохраняются.
+    await tester.tap(find.byKey(const Key('chip_filters')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('quick_breakfast')));
+    await tester.pumpAndSettle();
+    expect(find.text(formatFoundOffers(all)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('filters_close')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('hotel_card_3')), findsNothing);
+
+    // Цена: чип открывает шторку, вводим верхнюю границу.
+    await tester.tap(find.byKey(const Key('chip_price')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('price_max')), '2500');
+    await tester.pumpAndSettle();
+    final cheapBreakfast = hotelsCatalog
+        .where((h) => h.breakfast && h.price <= 2500)
+        .length;
+    expect(find.text(formatFoundOffers(cheapBreakfast)), findsOneWidget);
+    await tester.tap(find.byKey(const Key('filters_apply')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('hotel_card_1')), findsOneWidget);
+    expect(find.byKey(const Key('hotel_card_4')), findsNothing);
   });
 
   testWidgets('Сценарий проходит от главного до подтверждения', (tester) async {

@@ -48,6 +48,10 @@ String formatNights(int n) => '$n ${_plural(n, 'ночь', 'ночи', 'ноче
 /// «1 отзыв», «2 отзыва», «608 отзывов».
 String formatReviews(int n) => '$n ${_plural(n, 'отзыв', 'отзыва', 'отзывов')}';
 
+/// «Нашли 1 предложение», «Нашли 3 предложения», «Нашли 5 предложений».
+String formatFoundOffers(int n) =>
+    'Нашли $n ${_plural(n, 'предложение', 'предложения', 'предложений')}';
+
 /// «2,7 км до центра».
 String formatDistance(double km) =>
     '${km.toStringAsFixed(1).replaceAll('.', ',')} км до центра';

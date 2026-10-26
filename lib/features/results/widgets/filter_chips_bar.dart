@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/edge_fade.dart';
+import '../filters/filters_sheet.dart';
 import '../results_state.dart';
 import 'sort_sheet.dart';
 
 /// Строка чипов под шапкой: сортировка и быстрые фильтры.
-/// Чипы «Цена» и «Все скидки и бонусы» откроют общие фильтры на следующем шаге.
+/// Значок фильтров, «Цена» и «Все скидки и бонусы» открывают шторку «Фильтры»;
+/// остальные чипы переключают быстрые фильтры сразу.
 class FilterChipsBar extends ConsumerWidget {
   const FilterChipsBar({super.key});
 
@@ -26,7 +28,11 @@ class FilterChipsBar extends ConsumerWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
           children: [
-            const _Chip(key: Key('chip_filters'), icon: Icons.tune_rounded),
+            _Chip(
+              key: const Key('chip_filters'),
+              icon: Icons.tune_rounded,
+              onTap: () => showFiltersSheet(context),
+            ),
             _Chip(
               key: const Key('chip_sort'),
               label: sort.label,
@@ -36,11 +42,21 @@ class FilterChipsBar extends ConsumerWidget {
                 if (picked != null) ref.read(sortProvider.notifier).set(picked);
               },
             ),
-            const _Chip(key: Key('chip_price'), label: 'Цена', dropdown: true),
-            const _Chip(
-              key: Key('chip_discounts'),
+            _Chip(
+              key: const Key('chip_price'),
+              label: 'Цена',
+              dropdown: true,
+              selected: filters.hasPrice,
+              onTap: () =>
+                  showFiltersSheet(context, section: FilterSection.price),
+            ),
+            _Chip(
+              key: const Key('chip_discounts'),
               label: 'Все скидки и бонусы',
               dropdown: true,
+              selected: filters.anyDiscount,
+              onTap: () =>
+                  showFiltersSheet(context, section: FilterSection.discounts),
             ),
             _Chip(
               key: const Key('chip_free_cancel'),

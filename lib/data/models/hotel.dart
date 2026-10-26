@@ -7,6 +7,17 @@ enum HotelBadge {
   final String? label;
 }
 
+/// Тип питания, включённого в цену.
+enum MealPlan {
+  none('Без питания'),
+  breakfast('Завтрак'),
+  breakfastDinner('Завтрак, ужин'),
+  allInclusive('Всё включено');
+
+  const MealPlan(this.label);
+  final String label;
+}
+
 /// Отель из каталога. Записи не привязаны к городу: название города
 /// подставляется при показе из параметров поиска.
 class Hotel {
@@ -23,7 +34,10 @@ class Hotel {
     this.badge = HotelBadge.none,
     this.recommended = false,
     this.freeCancellation = false,
-    this.breakfast = false,
+    this.meal = MealPlan.none,
+    this.stars = 0,
+    this.wifi = true,
+    this.parking = false,
     this.imageHue = 30,
   });
 
@@ -41,12 +55,18 @@ class Hotel {
   final HotelBadge badge;
   final bool recommended;
   final bool freeCancellation;
-  final bool breakfast;
+  final MealPlan meal;
+
+  /// Число звёзд, 0 — без звёзд.
+  final int stars;
+  final bool wifi;
+  final bool parking;
 
   /// Оттенок градиента-заглушки вместо фото (0–360).
   final double imageHue;
 
   bool get isApartment => type == 'Апартаменты';
+  bool get breakfast => meal != MealPlan.none;
 
   int? get discountPercent {
     final old = oldPrice;
