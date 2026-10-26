@@ -4,6 +4,8 @@ import 'app_colors.dart';
 
 /// Тёмная тема Material 3 с цветами оригинала.
 abstract final class AppTheme {
+  static const fontFamily = 'GolosText';
+
   static ThemeData get dark {
     const scheme = ColorScheme.dark(
       primary: AppColors.accent,
@@ -37,9 +39,25 @@ abstract final class AppTheme {
           textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ),
+      fontFamily: AppTheme.fontFamily,
       textTheme: Typography.whiteMountainView.apply(
+        fontFamily: AppTheme.fontFamily,
         bodyColor: AppColors.textPrimary,
         displayColor: AppColors.textPrimary,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: AppColors.surfaceHigh,
+        selectedColor: AppColors.textPrimary,
+        side: BorderSide.none,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        labelStyle: const TextStyle(
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w500,
+        ),
+        secondaryLabelStyle: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
