@@ -28,6 +28,9 @@ class SearchParams {
   final int rooms;
 
   int get guests => adults + children;
+
+  /// Город для показа в адресах отелей: без выбранного города — Москва.
+  String get displayCity => city ?? 'Москва';
   bool get hasFullRange => checkIn != null && checkOut != null;
 
   /// Число ночей. Без дат считаем одну: поиск можно запустить и без них.

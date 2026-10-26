@@ -116,6 +116,120 @@ void main() {
     expect(find.byKey(const Key('hotel_card_4')), findsNothing);
   });
 
+  group('страница отеля', () {
+    Future<ProviderContainer> openApp(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.75;
+      addTearDown(tester.view.reset);
+      final container = ProviderContainer(
+        overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const TravelApp(),
+        ),
+      );
+      return container;
+    }
+
+    testWidgets('неизвестный id показывает «Отель не найден»', (tester) async {
+      await openApp(tester);
+      appRouter.go(Routes.hotelPath('нет-такого'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('hotel_not_found')), findsOneWidget);
+    });
+
+    testWidgets('без дат цена за одну ночь, в форме «Заезд — выезд»', (
+      tester,
+    ) async {
+      await openApp(tester);
+      appRouter.go(Routes.hotelPath('3'));
+      await tester.pumpAndSettle();
+      final one = formatPrice(hotelById('3')!.price);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('hotel_select')),
+          matching: find.text('Выбрать от $one'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('кнопка «Выбрать от» равна цене за все ночи', (tester) async {
+      final container = await openApp(tester);
+      container.read(searchProvider.notifier)
+        ..pickDate(DateTime(2026, 10, 27))
+        ..pickDate(DateTime(2026, 10, 30));
+      appRouter.go(Routes.hotelPath('3'));
+      await tester.pumpAndSettle();
+      final three = formatPrice(hotelById('3')!.price * 3);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('hotel_select')),
+          matching: find.text('Выбрать от $three'),
+        ),
+        findsOneWidget,
+      );
+      // Кнопка в блоке «Предложения» показывает ту же цену.
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('hotel_offers_select')),
+        300,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key('hotel_scroll')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('hotel_offers_select')),
+          matching: find.text('Выбрать от $three'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('«Читать всё» раскрывает текст', (tester) async {
+      await openApp(tester);
+      appRouter.go(Routes.hotelPath('3'));
+      await tester.pumpAndSettle();
+
+      final scrollable = find
+          .descendant(
+            of: find.byKey(const Key('hotel_scroll')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('hotel_read_more')),
+        300,
+        scrollable: scrollable,
+      );
+      expect(find.text('Читать всё'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('hotel_read_more')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('hotel_read_more')));
+      await tester.pumpAndSettle();
+      expect(find.text('Свернуть'), findsOneWidget);
+    });
+
+    testWidgets('плитка рейтинга ведёт к отзывам и назад', (tester) async {
+      await openApp(tester);
+      appRouter.go(Routes.hotelPath('3'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('hotel_rating_tile')));
+      await tester.pumpAndSettle();
+      expect(find.text('Отзывы'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('reviews_back')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('hotel_select')), findsOneWidget);
+    });
+  });
+
   testWidgets('Сценарий проходит от главного до подтверждения', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.75;
@@ -190,10 +304,12 @@ void main() {
 
     await tester.tap(find.byKey(const Key('hotel_card_3')));
     await tester.pumpAndSettle();
-    expect(find.text('Карточка отеля'), findsOneWidget);
+    expect(find.byKey(const Key('hotel_select')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('hotel_select')));
+    await tester.pumpAndSettle();
+    expect(find.text('Выбор номера'), findsOneWidget);
 
     for (final step in const [
-      ('Выбрать номер', 'Выбор номера'),
       ('Выбрать', 'Оформление'),
       ('Оплатить', 'Подтверждение'),
     ]) {

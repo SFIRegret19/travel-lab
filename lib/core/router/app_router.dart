@@ -4,6 +4,7 @@ import '../../features/checkout/checkout_screen.dart';
 import '../../features/confirmation/confirmation_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/hotel/hotel_screen.dart';
+import '../../features/hotel/reviews_screen.dart';
 import '../../features/results/results_screen.dart';
 import '../../features/rooms/rooms_screen.dart';
 import '../../features/search/city_suggest_screen.dart';
@@ -29,6 +30,11 @@ final appRouter = GoRouter(
     GoRoute(
       path: Routes.hotel,
       builder: (_, state) => HotelScreen(hotelId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: Routes.reviews,
+      builder: (_, state) =>
+          ReviewsScreen(hotelId: state.pathParameters['id']!),
     ),
     GoRoute(
       path: Routes.rooms,

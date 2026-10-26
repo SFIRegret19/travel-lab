@@ -72,7 +72,7 @@ class ResultsScreen extends ConsumerWidget {
                 return HotelResultCard(
                   key: Key('hotel_card_${hotel.id}'),
                   hotel: hotel,
-                  city: city,
+                  city: params.displayCity,
                   nights: params.nights,
                   favorite: favorites.contains(hotel.id),
                   onTap: () => context.push(Routes.hotelPath(hotel.id)),
