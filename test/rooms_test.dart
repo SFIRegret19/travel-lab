@@ -90,7 +90,7 @@ void main() {
   ) async {
     final container = await openRooms(tester, '3');
     await tapKey(tester, 'offer_select_r0_1');
-    expect(find.text('Оформление'), findsOneWidget);
+    expect(find.text('Похоже, цена изменилась'), findsOneWidget);
     final selection = container.read(bookingSelectionProvider)!;
     expect(selection.hotel.id, '3');
     expect(selection.room.id, 'r0');

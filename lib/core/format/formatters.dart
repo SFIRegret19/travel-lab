@@ -59,6 +59,15 @@ String formatRoomsLeft(int n) =>
 /// «25 сен».
 String formatDayMonth(DateTime d) => '${d.day} ${_shortMonths[d.month - 1]}';
 
+const _weekdays = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+
+/// «25 сен, пт».
+String formatDayWeekday(DateTime d) =>
+    '${formatDayMonth(d)}, ${_weekdays[d.weekday - 1]}';
+
+/// «1 день», «2 дня», «5 дней».
+String formatDays(int n) => '$n ${_plural(n, 'день', 'дня', 'дней')}';
+
 /// «2,7 км до центра».
 String formatDistance(double km) =>
     '${km.toStringAsFixed(1).replaceAll('.', ',')} км до центра';

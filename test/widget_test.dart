@@ -311,8 +311,19 @@ void main() {
 
     await tester.tap(find.byKey(const Key('offer_select_r0_0')));
     await tester.pumpAndSettle();
-    expect(find.text('Оформление'), findsOneWidget);
-    await tester.tap(find.text('Оплатить'));
+    expect(find.text('Похоже, цена изменилась'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('price_changed_ok')));
+    await tester.pumpAndSettle();
+    // В поиске выбрано два взрослых: второй гость обязателен.
+    await tester.enterText(find.byKey(const Key('field_surname_1')), 'Петрова');
+    await tester.enterText(find.byKey(const Key('field_name_1')), 'Анна');
+    // В поиске выбрано два взрослых: второй гость обязателен.
+    await tester.enterText(find.byKey(const Key('field_surname_1')), 'Петрова');
+    await tester.enterText(find.byKey(const Key('field_name_1')), 'Анна');
+    final pay = find.byKey(const Key('checkout_pay'));
+    await tester.ensureVisible(pay);
+    await tester.pumpAndSettle();
+    await tester.tap(pay);
     await tester.pumpAndSettle();
     expect(find.text('Подтверждение'), findsOneWidget);
   });

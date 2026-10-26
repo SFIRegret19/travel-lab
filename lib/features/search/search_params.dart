@@ -46,6 +46,16 @@ class SearchParams {
     return days < 1 ? 1 : days;
   }
 
+  /// Даты проживания для оформления. Без выбранных дат считаем, что
+  /// заезд сегодня, а выезд через [nights] ночей.
+  (DateTime, DateTime) stayRange(DateTime today) {
+    final from = checkIn ?? today;
+    return (
+      DateTime(from.year, from.month, from.day),
+      DateTime(from.year, from.month, from.day + nights),
+    );
+  }
+
   /// [city], [checkIn] и [checkOut] можно сбросить в null только через
   /// [clearCity] и [clearDates], иначе null означает «не менять».
   SearchParams copyWith({
