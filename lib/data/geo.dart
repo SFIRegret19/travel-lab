@@ -4,7 +4,6 @@ import 'package:latlong2/latlong.dart';
 
 import 'models/hotel.dart';
 
-/// Центры городов из списка подсказок.
 const _cityCenters = {
   'Москва': LatLng(55.7558, 37.6173),
   'Санкт-Петербург': LatLng(59.9343, 30.3351),
@@ -16,12 +15,10 @@ const _cityCenters = {
   'Новосибирск': LatLng(55.0084, 82.9357),
 };
 
-/// Центр города; для неизвестного названия — центр Москвы.
 LatLng cityCenter(String city) => _cityCenters[city] ?? _cityCenters['Москва']!;
 
-/// Положение отеля на карте. Отели каталога вымышленные и не привязаны
-/// к городу, поэтому кладём их вокруг центра выбранного города: на
-/// расстоянии `distanceKm`, в направлении, зависящем от id отеля.
+/// Отели вымышленные, поэтому кладутся вокруг центра города: на `distanceKm`,
+/// в направлении, зависящем от id.
 LatLng hotelPosition(Hotel hotel, String city) {
   final center = cityCenter(city);
   final seed = int.tryParse(hotel.id) ?? hotel.id.hashCode.abs();

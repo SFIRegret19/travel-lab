@@ -1,7 +1,7 @@
 import '../core/format/formatters.dart';
 import 'models/hotel.dart';
 
-/// Тариф на номер. Цены — за одну ночь, как и в каталоге.
+/// Цены за одну ночь, как в каталоге.
 class RoomOffer {
   const RoomOffer({
     required this.id,
@@ -14,7 +14,6 @@ class RoomOffer {
   final String id;
   final MealPlan meal;
 
-  /// true — есть бесплатная отмена до дня перед заездом.
   final bool refundable;
   final int price;
   final int? oldPrice;
@@ -26,7 +25,6 @@ class RoomOffer {
   }
 }
 
-/// Номер отеля с набором тарифов.
 class Room {
   const Room({
     required this.id,
@@ -46,7 +44,6 @@ class Room {
   final int area;
   final String beds;
 
-  /// Удобства по разделам: название раздела и пункты.
   final Map<String, List<String>> amenityGroups;
   final List<RoomOffer> offers;
   final double imageHue;
@@ -54,7 +51,6 @@ class Room {
   /// Сколько номеров осталось; null — не показывать.
   final int? left;
 
-  /// Все удобства списком, для галочек на карточке.
   List<String> get amenities => [
     for (final items in amenityGroups.values) ...items,
   ];
@@ -134,8 +130,7 @@ const _hotel = <_Spec>[
   ),
 ];
 
-/// Номера отеля. Выводятся из записи каталога детерминированно, так что
-/// самый дешёвый тариф первого номера совпадает с ценой отеля в выдаче.
+/// Детерминированно: дешёвый тариф первого номера равен цене отеля в выдаче.
 List<Room> roomsFor(Hotel h) {
   final seed = int.tryParse(h.id) ?? h.id.hashCode.abs();
   final specs = switch (h.type) {
@@ -190,7 +185,6 @@ DateTime freeCancelUntil(DateTime? checkIn, DateTime today) {
   return date.isBefore(today) ? today : date;
 }
 
-/// Строка про отмену под ценой тарифа и на оформлении.
 String cancelText(RoomOffer offer, DateTime until) => offer.refundable
     ? 'Бесплатная отмена до ${formatDayMonth(until)}'
     : 'Оплата не возвращается';

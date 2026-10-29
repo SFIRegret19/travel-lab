@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import 'filter_chips_bar.dart';
 
-/// Случайные факты на экране загрузки выдачи.
 const loadingFacts = [
   'Самый долгий полёт курицы продолжался 13 секунд',
   'Венеция стоит на 118 островах',
@@ -20,7 +19,6 @@ const loadingFacts = [
 String randomLoadingFact() =>
     loadingFacts[math.Random().nextInt(loadingFacts.length)];
 
-/// Серые заготовки чипов под шапкой, пока выдача грузится, и бегущая линия.
 class LoadingChipsBar extends StatelessWidget {
   const LoadingChipsBar({super.key});
 
@@ -59,7 +57,6 @@ class LoadingChipsBar extends StatelessWidget {
   }
 }
 
-/// Жёлтый отрезок, который бежит слева направо по кругу.
 class _SlidingLine extends StatefulWidget {
   const _SlidingLine();
 
@@ -112,7 +109,6 @@ class _SlidingLineState extends State<_SlidingLine>
   }
 }
 
-/// Тело экрана загрузки: вращающаяся планета и случайный факт.
 class ResultsLoading extends StatelessWidget {
   const ResultsLoading({super.key, required this.fact});
 
@@ -145,7 +141,6 @@ class ResultsLoading extends StatelessWidget {
   }
 }
 
-/// Планета: фиолетовый круг, по которому плывут жёлтые материки.
 class Globe extends StatefulWidget {
   const Globe({super.key, required this.size});
 

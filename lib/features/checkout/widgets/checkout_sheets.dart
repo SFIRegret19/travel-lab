@@ -140,7 +140,6 @@ class _PriceTile extends StatelessWidget {
   }
 }
 
-/// Шторка «Введите промокод». Возвращает принятый код или null.
 Future<String?> showPromoSheet(BuildContext context, {String initial = ''}) {
   return showModalBottomSheet<String>(
     context: context,

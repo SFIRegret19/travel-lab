@@ -9,8 +9,6 @@ import '../search_provider.dart';
 const _weekendColor = Color(0xFFE8892B);
 const _monthsShown = 12;
 
-/// Вертикальный календарь с выбором диапазона дат. Неделя с понедельника,
-/// выходные оранжевые, прошедшие дни недоступны.
 class RangeCalendar extends ConsumerWidget {
   const RangeCalendar({super.key});
 

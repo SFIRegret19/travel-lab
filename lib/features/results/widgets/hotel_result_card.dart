@@ -6,8 +6,6 @@ import '../../../core/widgets/photo_placeholder.dart';
 import '../../../core/widgets/rating_badge.dart';
 import '../../../data/models/hotel.dart';
 
-/// Карточка отеля в выдаче. Название города подставляется при показе,
-/// цена показана за весь срок проживания.
 class HotelResultCard extends StatelessWidget {
   const HotelResultCard({
     super.key,

@@ -1,7 +1,6 @@
 /// Промокоды демо-режима: код в верхнем регистре и скидка в процентах.
 const promoCodes = {'LAB10': 10};
 
-/// Процент скидки по промокоду или null, если такого кода нет.
 int? promoPercentFor(String code) => promoCodes[code.trim().toUpperCase()];
 
 /// Цена на оформлении после «Похоже, цена изменилась»: на 5 % ниже той,
@@ -22,13 +21,11 @@ class CheckoutPrice {
   /// Сумма за весь срок, которую гость видел на экране номеров.
   final int shownTotal;
 
-  /// Скидка тарифа в процентах, null — без скидки.
   final int? discountPercent;
   final bool lateCheckout;
   final int lateCheckoutPrice;
   final int promoPercent;
 
-  /// Новая цена после пересчёта на оформлении.
   int get current => priceAfterChange(shownTotal);
 
   /// Строка «N ночей»: цена до скидки тарифа.
@@ -41,7 +38,6 @@ class CheckoutPrice {
   int get promo => (current * promoPercent / 100).round();
   int get late => lateCheckout ? lateCheckoutPrice : 0;
 
-  /// «К оплате».
   int get total => gross - discount - promo + late;
 
   /// Первый платёж при оплате частями: сумма на 4, с округлением вверх.

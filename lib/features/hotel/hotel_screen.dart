@@ -20,8 +20,6 @@ import 'widgets/category_bars.dart';
 import 'widgets/review_card.dart';
 import 'widgets/section_card.dart';
 
-/// Страница отеля одной прокручиваемой лентой с постоянной кнопкой
-/// «Выбрать от N ₽».
 class HotelScreen extends ConsumerWidget {
   const HotelScreen({super.key, required this.hotelId});
 

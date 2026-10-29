@@ -20,7 +20,6 @@ void main() {
     await loader.load();
   });
 
-  /// Открывает оформление с тарифом r0/o0 хостела №3 (1 089 ₽, −10 %).
   Future<ProviderContainer> openCheckout(
     WidgetTester tester, {
     bool withSelection = true,

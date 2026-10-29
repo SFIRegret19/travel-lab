@@ -8,7 +8,6 @@ import '../checkout_pricing.dart';
 
 enum PayMode { full, split }
 
-/// Способ оплаты: [label] идёт под суммой на кнопке «Оплатить».
 class PayMethod {
   const PayMethod(this.title, this.caption, this.label, this.icon);
 
@@ -29,7 +28,6 @@ const payMethods = [
   PayMethod('Мир', '•• 7305', 'Мир •• 7305', Icons.credit_card_rounded),
 ];
 
-/// Блок «Способы оплаты»: вся сумма или Сплит и выбор карты.
 class PaymentCard extends StatelessWidget {
   const PaymentCard({
     super.key,
@@ -220,7 +218,6 @@ class _MethodTile extends StatelessWidget {
   }
 }
 
-/// Блок «Ваше бронирование»: строки расчёта, промокод и «К оплате».
 class PriceSummaryCard extends StatelessWidget {
   const PriceSummaryCard({
     super.key,

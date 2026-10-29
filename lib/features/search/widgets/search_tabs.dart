@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 
-/// Ряд круглых значков режимов (жильё, авиа, поезда, выходные) под вкладками.
 class SearchModeIcons extends StatelessWidget {
   const SearchModeIcons({super.key});
 
@@ -36,13 +35,10 @@ class SearchModeIcons extends StatelessWidget {
   }
 }
 
-/// Вкладки «Жильё / Авиа / Поезда / Выходные» в шапке поиска.
 /// Активна только «Жильё», остальные вне сценария и не нажимаются.
 class SearchTabs extends StatelessWidget {
   const SearchTabs({super.key, this.showUnderline = true});
 
-  /// Жёлтая черта под «Жильё». На первом экране вместо неё жёлтый
-  /// кружок в [SearchModeIcons].
   final bool showUnderline;
 
   @override

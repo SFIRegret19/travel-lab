@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'models/hotel.dart';
 
-/// Удобство с названием и значком.
 enum Amenity {
   laundry(
     'Прачечная и стиральная машина',
@@ -22,11 +21,9 @@ enum Amenity {
   final IconData icon;
 }
 
-/// Пара «значение и подпись» для плиток «Об объекте».
 typedef Fact = (String value, String caption);
 
-/// Подробности об отеле для его страницы. Выводятся из записи каталога
-/// детерминированно, так что для одного id всегда одно и то же.
+/// Выводится из записи каталога детерминированно.
 class HotelDetails {
   const HotelDetails({
     required this.description,
@@ -42,22 +39,17 @@ class HotelDetails {
 
   final String description;
 
-  /// Три удобства под названием отеля.
   final List<Amenity> topAmenities;
 
-  /// Полный список для раздела «Удобства и услуги».
   final List<Amenity> amenities;
   final String checkIn;
   final String checkOut;
 
-  /// Пункты правил: заголовок и пояснение.
   final List<(String, String?)> rules;
 
-  /// Оценки по категориям, 0–100.
   final List<(String, int)> scores;
   final String metro;
 
-  /// Плитки «Об объекте».
   final List<Fact> facts;
 }
 
@@ -135,7 +127,6 @@ HotelDetails detailsFor(Hotel h) {
   );
 }
 
-/// Время заезда и выезда в двух видах: «14:00 - 00:00» и «Заезд с 14:00 до 00:00».
 extension HotelDetailsTimes on HotelDetails {
   String get checkInTime =>
       checkIn.replaceAll('С ', '').replaceAll('\nдо ', ' - ');

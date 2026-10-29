@@ -15,8 +15,6 @@ import 'widgets/map_banner.dart';
 import 'widgets/price_info_sheet.dart';
 import 'widgets/results_loading.dart';
 
-/// Выдача отелей: закреплённая шапка с чипами, баннер «На карте», список.
-/// Сначала короткая загрузка с планетой и случайным фактом.
 class ResultsScreen extends ConsumerStatefulWidget {
   const ResultsScreen({super.key, this.fromSearch = false});
 
@@ -45,7 +43,6 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
     super.dispose();
   }
 
-  /// Включает загрузку на время из [resultsLoadDurationProvider].
   void _startLoading() {
     _timer?.cancel();
     final duration = ref.read(resultsLoadDurationProvider);

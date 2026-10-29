@@ -105,7 +105,6 @@ class HotelFilters {
   HotelFilters toggleStars(int count) =>
       copyWith(stars: _toggled(stars, count));
 
-  /// Рейтинг выбирается порогом: повторное нажатие на тот же сбрасывает.
   HotelFilters toggleMinRating(double value) =>
       copyWith(minRating: minRating == value ? 0 : value);
 
@@ -150,7 +149,6 @@ final resultsLoadDurationProvider = Provider<Duration>(
   (ref) => const Duration(milliseconds: 2500),
 );
 
-/// Выдача: фильтры и сортировка поверх каталога.
 final resultsProvider = Provider<List<Hotel>>((ref) {
   return applyResults(
     hotelsCatalog,
@@ -214,7 +212,6 @@ bool _matches(Hotel h, SearchParams params, HotelFilters f) {
   return true;
 }
 
-/// Избранное: множество id отелей.
 final favoritesProvider = NotifierProvider<FavoritesNotifier, Set<String>>(
   FavoritesNotifier.new,
 );

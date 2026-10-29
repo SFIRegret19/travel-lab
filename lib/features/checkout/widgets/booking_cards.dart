@@ -7,7 +7,6 @@ import '../../../data/hotel_rooms.dart';
 import '../../../data/models/hotel.dart';
 import '../../hotel/widgets/section_card.dart';
 
-/// Название, адрес и даты проживания.
 class StayCard extends StatelessWidget {
   const StayCard({
     super.key,
@@ -155,7 +154,6 @@ class _DateColumn extends StatelessWidget {
   }
 }
 
-/// Выбранный номер и условия тарифа.
 class RoomSummaryCard extends StatelessWidget {
   const RoomSummaryCard({
     super.key,
@@ -299,7 +297,6 @@ class _IconLine extends StatelessWidget {
   }
 }
 
-/// Блок «Услуги» с переключателем позднего выезда.
 class ServicesCard extends StatelessWidget {
   const ServicesCard({
     super.key,
@@ -344,7 +341,6 @@ class ServicesCard extends StatelessWidget {
   }
 }
 
-/// Блок «Правила проживания».
 class RulesCard extends StatelessWidget {
   const RulesCard({super.key, required this.checkIn, required this.checkOut});
 

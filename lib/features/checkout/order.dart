@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../rooms/booking_selection.dart';
 
-/// Оформленное бронирование: то, что покажет экран подтверждения.
 class Order {
   const Order({
     required this.selection,
@@ -25,7 +24,6 @@ class Order {
   final String email;
   final String phone;
 
-  /// Полная стоимость.
   final int total;
 
   /// Списано сейчас: вся сумма или первый платёж Сплита.

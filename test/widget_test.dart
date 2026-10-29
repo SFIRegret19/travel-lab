@@ -35,7 +35,6 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
-    // В каталоге у обеих квартир нет завтрака.
     container
         .read(searchProvider.notifier)
         .setType(AccommodationType.apartments);
@@ -47,7 +46,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('hotel_card_5')), findsOneWidget);
 
-    // Чип «С завтраком» в конце горизонтального списка: сначала прокрутка.
     await tester.drag(
       find.byKey(const Key('chip_sort')),
       const Offset(-600, 0),
@@ -87,7 +85,6 @@ void main() {
     final withBreakfast = hotelsCatalog.where((h) => h.breakfast).length;
     expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
 
-    // Применить: живой счётчик меняется, список сокращается.
     await tester.tap(find.byKey(const Key('chip_filters')));
     await tester.pumpAndSettle();
     expect(find.text(formatFoundOffers(all)), findsOneWidget);
@@ -98,7 +95,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('hotel_card_3')), findsNothing);
 
-    // Отбросить: изменения черновика не сохраняются.
     await tester.tap(find.byKey(const Key('chip_filters')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('quick_breakfast')));
@@ -108,7 +104,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('hotel_card_3')), findsNothing);
 
-    // Цена: чип открывает шторку, вводим верхнюю границу.
     await tester.tap(find.byKey(const Key('chip_price')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('price_max')), '2500');
@@ -182,7 +177,6 @@ void main() {
         ),
         findsOneWidget,
       );
-      // Кнопка в блоке «Предложения» показывает ту же цену.
       await tester.scrollUntilVisible(
         find.byKey(const Key('hotel_offers_select')),
         300,
@@ -259,12 +253,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Продолжить поиск'), findsOneWidget);
 
-    // Главный -> поиск.
     await tester.tap(find.byKey(const Key('home_search_pill')));
     await tester.pumpAndSettle();
     expect(find.text('Где будете жить?'), findsWidgets);
 
-    // Выбор города через подсказки.
     await tester.tap(find.byKey(const Key('city_input')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('city_field')), 'Соч');
@@ -272,7 +264,6 @@ void main() {
     await tester.tap(find.text('Сочи'));
     await tester.pumpAndSettle();
 
-    // Даты: пока не выбран выезд, «Дальше» недоступна.
     final next = find.byKey(const Key('next_button'));
     expect(tester.widget<FilledButton>(next).onPressed, isNull);
     await tester.tap(find.byKey(const Key('day_2026-10-27')));
@@ -284,7 +275,6 @@ void main() {
     await tester.tap(next);
     await tester.pumpAndSettle();
 
-    // Гости -> результаты.
     await tester.tap(find.byKey(const Key('adults_plus')));
     await tester.pump();
     await tester.tap(find.byKey(const Key('search_button')));
@@ -292,9 +282,7 @@ void main() {
     expect(find.byKey(const Key('results_pill')), findsOneWidget);
     expect(find.text('Сочи'), findsOneWidget);
 
-    // Выдача: сортировка и быстрые фильтры, затем первая карточка.
     expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
-    // Закрытие крестиком отменяет выбор в шторке.
     await tester.tap(find.byKey(const Key('chip_sort')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('sort_pricier')));
@@ -327,10 +315,8 @@ void main() {
     expect(find.text('Похоже, цена изменилась'), findsOneWidget);
     await tester.tap(find.byKey(const Key('price_changed_ok')));
     await tester.pumpAndSettle();
-    // В поиске выбрано два взрослых: второй гость обязателен.
     await tester.enterText(find.byKey(const Key('field_surname_1')), 'Петрова');
     await tester.enterText(find.byKey(const Key('field_name_1')), 'Анна');
-    // В поиске выбрано два взрослых: второй гость обязателен.
     await tester.enterText(find.byKey(const Key('field_surname_1')), 'Петрова');
     await tester.enterText(find.byKey(const Key('field_name_1')), 'Анна');
     final pay = find.byKey(const Key('checkout_pay'));

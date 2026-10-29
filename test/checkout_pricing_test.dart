@@ -36,7 +36,6 @@ void main() {
               reason: reason,
             );
             expect(price.promo, greaterThan(0), reason: reason);
-            // Сплит из четырёх платежей покрывает всю сумму.
             expect(price.splitPart * 4, greaterThanOrEqualTo(price.total));
             expect(price.splitPart * 3, lessThan(price.total));
           }

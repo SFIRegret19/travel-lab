@@ -14,8 +14,6 @@ import '../search/search_provider.dart';
 import 'map_tiles.dart';
 import 'map_widgets.dart';
 
-/// Карта выдачи: метки с ценой у отелей, прошедших фильтры, и карточка
-/// выбранного отеля.
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
@@ -33,7 +31,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     super.dispose();
   }
 
-  /// Кадр, в который помещаются все метки; null, если отелей нет.
   CameraFit? _fit(List<LatLng> points) => points.isEmpty
       ? null
       : CameraFit.bounds(

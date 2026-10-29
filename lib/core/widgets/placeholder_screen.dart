@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Временный экран-заглушка: заголовок и подпись, что именно здесь будет.
 class PlaceholderScreen extends StatelessWidget {
   const PlaceholderScreen({
     super.key,

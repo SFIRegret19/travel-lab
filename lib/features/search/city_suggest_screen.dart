@@ -8,7 +8,6 @@ import '../../data/mock_data.dart';
 import 'search_provider.dart';
 import 'widgets/search_tabs.dart';
 
-/// Выбор города: поле ввода, недавние поиски и список регионов.
 /// Закрывается с `true`, если пользователь что-то выбрал.
 class CitySuggestScreen extends ConsumerStatefulWidget {
   const CitySuggestScreen({super.key});

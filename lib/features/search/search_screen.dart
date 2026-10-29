@@ -13,7 +13,6 @@ import 'widgets/search_tabs.dart';
 
 enum _Section { where, when, guests }
 
-/// Форма поиска: три раскрывающиеся секции (где, когда, гости).
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key, this.editMode = false});
 

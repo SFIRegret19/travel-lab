@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Заглушка вместо фотографии: градиент заданного оттенка со значком.
 class PhotoPlaceholder extends StatelessWidget {
   const PhotoPlaceholder({
     super.key,

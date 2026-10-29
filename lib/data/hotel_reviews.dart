@@ -1,6 +1,5 @@
 import 'models/hotel.dart';
 
-/// Отзыв гостя. Имена и тексты придуманы для макета.
 class Review {
   const Review({
     required this.author,
@@ -17,13 +16,10 @@ class Review {
   final int rating;
   final String liked;
 
-  /// «сентябрь 2026 · 1 ночь».
   final String stay;
 
-  /// Метка «Наш гость» у автора.
   final bool regular;
 
-  /// Ответ отеля.
   final String? reply;
 }
 
@@ -76,8 +72,7 @@ final _pool = <Review>[
   ),
 ];
 
-/// Отзывы отеля. Набор общий, порядок зависит от id, чтобы у разных отелей
-/// страницы отзывов не выглядели одинаково.
+/// Порядок зависит от id, чтобы у разных отелей отзывы не совпадали.
 List<Review> reviewsFor(Hotel h) {
   final seed = int.tryParse(h.id) ?? h.id.hashCode.abs();
   final shift = seed % _pool.length;

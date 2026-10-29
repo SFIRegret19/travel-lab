@@ -53,7 +53,6 @@ void main() {
     final fact = tester.widget<Text>(find.byKey(const Key('loading_fact')));
     expect(loadingFacts, contains(fact.data));
     expect(find.byKey(const Key('hotel_card_3')), findsNothing);
-    // Шапка с поиском остаётся на месте, чипов фильтров ещё нет.
     expect(find.byKey(const Key('results_pill')), findsOneWidget);
     expect(find.byKey(const Key('chip_sort')), findsNothing);
 

@@ -13,7 +13,6 @@ const monthNames = [
   'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь', //
 ];
 
-/// «25 — 26 сен» или «30 сен — 2 окт». Без дат — «Заезд — выезд».
 String formatRangeShort(DateTime? from, DateTime? to) {
   if (from == null) return 'Заезд — выезд';
   final start = '${from.day} ${_shortMonths[from.month - 1]}';
@@ -24,7 +23,6 @@ String formatRangeShort(DateTime? from, DateTime? to) {
   return '$start — ${to.day} ${_shortMonths[to.month - 1]}';
 }
 
-/// «25 - 26 сентября» или «30 сентября - 2 октября».
 String formatRangeLong(DateTime from, DateTime to) {
   if (from.month == to.month) {
     return '${from.day} - ${to.day} ${_genitiveMonths[to.month - 1]}';
@@ -42,37 +40,28 @@ String _plural(int n, String one, String few, String many) {
   return many;
 }
 
-/// «1 ночь», «2 ночи», «5 ночей».
 String formatNights(int n) => '$n ${_plural(n, 'ночь', 'ночи', 'ночей')}';
 
-/// «1 отзыв», «2 отзыва», «608 отзывов».
 String formatReviews(int n) => '$n ${_plural(n, 'отзыв', 'отзыва', 'отзывов')}';
 
-/// «Нашли 1 предложение», «Нашли 3 предложения», «Нашли 5 предложений».
 String formatFoundOffers(int n) =>
     'Нашли $n ${_plural(n, 'предложение', 'предложения', 'предложений')}';
 
-/// «Осталось 1 номер», «Осталось 3 номера», «Осталось 5 номеров».
 String formatRoomsLeft(int n) =>
     'Осталось $n ${_plural(n, 'номер', 'номера', 'номеров')}';
 
-/// «25 сен».
 String formatDayMonth(DateTime d) => '${d.day} ${_shortMonths[d.month - 1]}';
 
 const _weekdays = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 
-/// «25 сен, пт».
 String formatDayWeekday(DateTime d) =>
     '${formatDayMonth(d)}, ${_weekdays[d.weekday - 1]}';
 
-/// «1 день», «2 дня», «5 дней».
 String formatDays(int n) => '$n ${_plural(n, 'день', 'дня', 'дней')}';
 
-/// «2,7 км до центра».
 String formatDistance(double km) =>
     '${km.toStringAsFixed(1).replaceAll('.', ',')} км до центра';
 
-/// «1 гость», «2 гостя», «5 гостей».
 String formatGuests(int n) => '$n ${_plural(n, 'гость', 'гостя', 'гостей')}';
 
 /// Цена с неразрывными пробелами: «1 975 ₽».

@@ -9,8 +9,6 @@ import '../../../data/geo.dart';
 import '../../map/map_tiles.dart';
 import '../../search/search_provider.dart';
 
-/// Баннер «На карте»: статичная карта выбранного города и кнопка,
-/// которая открывает полноэкранную карту выдачи.
 class MapBanner extends ConsumerWidget {
   const MapBanner({super.key});
 

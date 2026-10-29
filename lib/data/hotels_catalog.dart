@@ -180,5 +180,4 @@ const hotelsCatalog = [
 
 final _byId = {for (final h in hotelsCatalog) h.id: h};
 
-/// Отель по id. Экран отеля получает только id, поэтому поиск один на всех.
 Hotel? hotelById(String id) => _byId[id];

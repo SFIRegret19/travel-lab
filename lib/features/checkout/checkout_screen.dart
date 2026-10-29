@@ -19,7 +19,6 @@ import 'widgets/checkout_sheets.dart';
 import 'widgets/form_fields.dart';
 import 'widgets/payment_cards.dart';
 
-/// Поле формы вместе с контроллером, фокусом и правилом проверки.
 class _Spec {
   _Spec(this.validate, [String text = ''])
     : controller = TextEditingController(text: text);

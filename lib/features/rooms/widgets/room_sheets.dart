@@ -10,7 +10,6 @@ const _shape = RoundedRectangleBorder(
 
 const _cancelRed = Color(0xFFE8164E);
 
-/// Шторка «Все удобства в номере» на весь экран.
 Future<void> showRoomAmenitiesSheet(BuildContext context, Room room) {
   return showModalBottomSheet<void>(
     context: context,
@@ -120,8 +119,6 @@ class _AmenitiesSheet extends StatelessWidget {
   }
 }
 
-/// Шторка «Условия отмены». Для тарифа с возвратом показывает срок
-/// бесплатной отмены.
 Future<void> showCancellationSheet(
   BuildContext context, {
   required bool refundable,

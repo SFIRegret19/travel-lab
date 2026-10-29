@@ -7,7 +7,6 @@ enum AccommodationType {
   final String label;
 }
 
-/// Параметры поиска жилья. Неизменяемый объект: меняется через [copyWith].
 class SearchParams {
   const SearchParams({
     this.city,

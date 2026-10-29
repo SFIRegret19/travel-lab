@@ -4,7 +4,6 @@ import '../../../core/format/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/hotel.dart';
 
-/// Шторка «Информация о цене» для отеля со скидкой.
 Future<void> showPriceInfoSheet(BuildContext context, Hotel hotel, int nights) {
   return showPriceBreakdownSheet(
     context,
@@ -15,8 +14,6 @@ Future<void> showPriceInfoSheet(BuildContext context, Hotel hotel, int nights) {
   );
 }
 
-/// Та же шторка по готовым суммам за весь срок: цена до скидки, скидка
-/// в процентах и итог.
 Future<void> showPriceBreakdownSheet(
   BuildContext context, {
   required int total,

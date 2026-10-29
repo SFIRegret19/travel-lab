@@ -8,7 +8,6 @@ import '../../../data/hotel_rooms.dart';
 import '../../results/widgets/price_info_sheet.dart';
 import 'room_sheets.dart';
 
-/// Карточка номера: фото, описание, удобства и ряд тарифов.
 class RoomCard extends StatelessWidget {
   const RoomCard({
     super.key,
@@ -21,7 +20,6 @@ class RoomCard extends StatelessWidget {
   final Room room;
   final int nights;
 
-  /// Последний день бесплатной отмены для тарифов с возвратом.
   final DateTime cancelUntil;
   final ValueChanged<RoomOffer> onSelect;
 
@@ -133,7 +131,6 @@ class RoomCard extends StatelessWidget {
   }
 }
 
-/// Фото номера: плашка «Осталось N», перелистывание и точки.
 class _Photos extends StatefulWidget {
   const _Photos({required this.room});
 

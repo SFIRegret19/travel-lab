@@ -126,7 +126,6 @@ void main() {
     await open(
       tester,
       setup: (c) {
-        // В каталоге у обеих квартир нет завтрака.
         c.read(searchProvider.notifier).setType(AccommodationType.apartments);
         c.read(filtersProvider.notifier).toggleBreakfast();
       },

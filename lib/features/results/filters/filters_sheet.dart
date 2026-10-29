@@ -9,7 +9,6 @@ import '../../../data/models/hotel.dart';
 import '../../search/search_provider.dart';
 import '../results_state.dart';
 
-/// Раздел, к которому прокручивается шторка при открытии.
 enum FilterSection { top, price, discounts }
 
 /// Шторка «Фильтры». Работает с черновиком: «Применить» сохраняет выбор,
@@ -419,7 +418,6 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
   }
 }
 
-/// Раздел с заголовком и стрелкой сворачивания.
 class _Section extends StatefulWidget {
   const _Section({required this.title, required this.child, this.sectionKey});
 
@@ -530,7 +528,6 @@ class _OptionChip extends StatelessWidget {
   }
 }
 
-/// Бегунок слайдера цены: тёмный кружок с белым контуром, как в оригинале.
 class _RingThumbShape extends RangeSliderThumbShape {
   const _RingThumbShape();
 

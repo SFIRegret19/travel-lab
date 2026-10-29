@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Тёмная тема Material 3 с цветами оригинала.
 abstract final class AppTheme {
   static const fontFamily = 'GolosText';
 

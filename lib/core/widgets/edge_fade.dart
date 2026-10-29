@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Плавное затухание краёв у горизонтальной прокрутки: содержимое не
-/// обрубается резко, а «выплывает» из края. Затухание появляется только с той
-/// стороны, где за краем ещё есть спрятанная часть списка.
+/// Затухание у краёв горизонтального списка: только с той стороны, где есть скрытая часть.
 class EdgeFade extends StatefulWidget {
   const EdgeFade({super.key, required this.child, this.extent = 28});
 
   final Widget child;
 
-  /// Ширина затухающей полосы у каждого края.
   final double extent;
 
   @override

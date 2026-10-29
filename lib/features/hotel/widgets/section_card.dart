@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 
-/// Блок страницы отеля: тёмная карточка со скруглением и необязательным
-/// заголовком.
 class SectionCard extends StatelessWidget {
   const SectionCard({
     super.key,

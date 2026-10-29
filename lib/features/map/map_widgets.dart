@@ -8,8 +8,6 @@ import '../../data/models/hotel.dart';
 
 const _pinBlue = Color(0xFF2F6BFF);
 
-/// Метка отеля на карте: цена за весь срок, значок «рекомендуем» и «%»
-/// у отелей со скидкой. Выбранная метка инвертируется.
 class PricePin extends StatelessWidget {
   const PricePin({
     super.key,
@@ -82,7 +80,6 @@ class PricePin extends StatelessWidget {
   }
 }
 
-/// Карточка выбранного отеля внизу карты; по нажатию открывает отель.
 class SelectedHotelCard extends StatelessWidget {
   const SelectedHotelCard({
     super.key,

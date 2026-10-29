@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Зелёная плашка с оценкой, как в списках оригинала.
 class RatingBadge extends StatelessWidget {
   const RatingBadge(this.rating, {super.key});
 

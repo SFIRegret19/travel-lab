@@ -9,7 +9,6 @@ import 'widgets/category_bars.dart';
 import 'widgets/review_card.dart';
 import 'widgets/section_card.dart';
 
-/// Полный список отзывов отеля с оценками по категориям.
 class ReviewsScreen extends StatelessWidget {
   const ReviewsScreen({super.key, required this.hotelId});
 

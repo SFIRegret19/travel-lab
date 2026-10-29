@@ -4,8 +4,6 @@ import '../../../core/theme/app_colors.dart';
 
 const _midGreen = Color(0xFF889A46);
 
-/// Оценки по категориям: подпись, процент и полоса. Две колонки, как в
-/// оригинале.
 class CategoryBars extends StatelessWidget {
   const CategoryBars({super.key, required this.scores});
 

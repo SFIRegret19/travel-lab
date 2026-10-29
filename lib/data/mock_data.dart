@@ -33,5 +33,4 @@ final recentSearchesProvider = Provider<List<SearchParams>>((ref) {
   ];
 });
 
-/// «Недавно смотрели»: отели из общего каталога.
 final List<Hotel> recentlyViewed = [hotelById('1')!, hotelById('2')!];

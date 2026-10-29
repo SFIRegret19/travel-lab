@@ -7,9 +7,6 @@ import '../filters/filters_sheet.dart';
 import '../results_state.dart';
 import 'sort_sheet.dart';
 
-/// Строка чипов под шапкой: сортировка и быстрые фильтры.
-/// Значок фильтров, «Цена» и «Все скидки и бонусы» открывают шторку «Фильтры»;
-/// остальные чипы переключают быстрые фильтры сразу.
 class FilterChipsBar extends ConsumerWidget {
   const FilterChipsBar({super.key});
 

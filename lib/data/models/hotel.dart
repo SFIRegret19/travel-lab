@@ -7,7 +7,6 @@ enum HotelBadge {
   final String? label;
 }
 
-/// Тип питания, включённого в цену.
 enum MealPlan {
   none('Без питания'),
   breakfast('Завтрак'),

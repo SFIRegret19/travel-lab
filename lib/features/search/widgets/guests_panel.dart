@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../search_provider.dart';
 
-/// Выбор гостей: взрослые, дети, номера.
 class GuestsPanel extends ConsumerWidget {
   const GuestsPanel({super.key});
 

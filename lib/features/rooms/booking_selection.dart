@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/hotel_rooms.dart';
 import '../../data/models/hotel.dart';
 
-/// Выбранный тариф: отель, номер и предложение. Нужен оформлению
-/// и подтверждению.
 class BookingSelection {
   const BookingSelection({
     required this.hotel,
