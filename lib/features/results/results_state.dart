@@ -144,6 +144,12 @@ class FiltersNotifier extends Notifier<HotelFilters> {
   void reset() => state = const HotelFilters();
 }
 
+/// Сколько «грузится» выдача при открытии и при смене параметров поиска.
+/// Нулевая длительность отключает экран загрузки (так делают тесты).
+final resultsLoadDurationProvider = Provider<Duration>(
+  (ref) => const Duration(milliseconds: 2500),
+);
+
 /// Выдача: фильтры и сортировка поверх каталога.
 final resultsProvider = Provider<List<Hotel>>((ref) {
   return applyResults(

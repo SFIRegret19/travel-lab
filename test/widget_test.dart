@@ -7,6 +7,7 @@ import 'package:travel_lab/core/format/formatters.dart';
 import 'package:travel_lab/core/router/app_router.dart';
 import 'package:travel_lab/data/hotels_catalog.dart';
 import 'package:travel_lab/core/router/routes.dart';
+import 'package:travel_lab/features/results/results_state.dart';
 import 'package:travel_lab/features/search/search_params.dart';
 import 'package:travel_lab/features/search/search_provider.dart';
 import 'package:travel_lab/core/time/today_provider.dart';
@@ -28,7 +29,10 @@ void main() {
     addTearDown(tester.view.reset);
 
     final container = ProviderContainer(
-      overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+      overrides: [
+        todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
+        resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+      ],
     );
     addTearDown(container.dispose);
     // В каталоге у обеих квартир нет завтрака.
@@ -67,7 +71,10 @@ void main() {
     addTearDown(tester.view.reset);
 
     final container = ProviderContainer(
-      overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+      overrides: [
+        todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
+        resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+      ],
     );
     addTearDown(container.dispose);
     await tester.pumpWidget(
@@ -122,7 +129,10 @@ void main() {
       tester.view.devicePixelRatio = 2.75;
       addTearDown(tester.view.reset);
       final container = ProviderContainer(
-        overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+        overrides: [
+          todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
+          resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+        ],
       );
       addTearDown(container.dispose);
       await tester.pumpWidget(
@@ -237,7 +247,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+        overrides: [
+          todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
+          resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+        ],
         child: const TravelApp(),
       ),
     );

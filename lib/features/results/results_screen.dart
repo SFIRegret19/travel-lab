@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,9 +13,11 @@ import 'widgets/filter_chips_bar.dart';
 import 'widgets/hotel_result_card.dart';
 import 'widgets/map_banner.dart';
 import 'widgets/price_info_sheet.dart';
+import 'widgets/results_loading.dart';
 
 /// Выдача отелей: закреплённая шапка с чипами, баннер «На карте», список.
-class ResultsScreen extends ConsumerWidget {
+/// Сначала короткая загрузка с планетой и случайным фактом.
+class ResultsScreen extends ConsumerStatefulWidget {
   const ResultsScreen({super.key, this.fromSearch = false});
 
   /// Экран открыт из формы поиска: строка поиска в шапке возвращает назад.
@@ -21,11 +25,48 @@ class ResultsScreen extends ConsumerWidget {
   final bool fromSearch;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ResultsScreen> createState() => _ResultsScreenState();
+}
+
+class _ResultsScreenState extends ConsumerState<ResultsScreen> {
+  Timer? _timer;
+  bool _loading = false;
+  String _fact = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _startLoading();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  /// Включает загрузку на время из [resultsLoadDurationProvider].
+  void _startLoading() {
+    _timer?.cancel();
+    final duration = ref.read(resultsLoadDurationProvider);
+    _loading = duration > Duration.zero;
+    if (!_loading) return;
+    _fact = randomLoadingFact();
+    _timer = Timer(duration, () {
+      if (mounted) setState(() => _loading = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Поиск изменили (правка из шапки): выдача «перезагружается».
+    ref.listen(searchProvider, (_, _) => setState(_startLoading));
+
     final params = ref.watch(searchProvider);
     final hotels = ref.watch(resultsProvider);
     final favorites = ref.watch(favoritesProvider);
     final city = params.city ?? 'Везде';
+    final fromSearch = widget.fromSearch;
 
     return Scaffold(
       body: CustomScrollView(
@@ -36,9 +77,13 @@ class ResultsScreen extends ConsumerWidget {
             backgroundColor: AppColors.surface,
             surfaceTintColor: Colors.transparent,
             clipBehavior: Clip.antiAlias,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-            ),
+            shape: _loading
+                ? null
+                : const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(28),
+                    ),
+                  ),
             leading: IconButton(
               key: const Key('results_back'),
               icon: const Icon(Icons.arrow_back),
@@ -53,37 +98,46 @@ class ResultsScreen extends ConsumerWidget {
                   : context.push(Routes.search, extra: true),
             ),
             centerTitle: true,
-            bottom: const PreferredSize(
-              preferredSize: Size.fromHeight(FilterChipsBar.height),
-              child: FilterChipsBar(),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(FilterChipsBar.height),
+              child: _loading
+                  ? const LoadingChipsBar()
+                  : const FilterChipsBar(),
             ),
           ),
-          const SliverToBoxAdapter(child: MapBanner()),
-          if (hotels.isEmpty)
-            const SliverFillRemaining(
+          if (_loading)
+            SliverFillRemaining(
               hasScrollBody: false,
-              child: _EmptyState(),
+              child: ResultsLoading(fact: _fact),
             )
-          else
-            SliverList.builder(
-              itemCount: hotels.length,
-              itemBuilder: (context, i) {
-                final hotel = hotels[i];
-                return HotelResultCard(
-                  key: Key('hotel_card_${hotel.id}'),
-                  hotel: hotel,
-                  city: params.displayCity,
-                  nights: params.nights,
-                  favorite: favorites.contains(hotel.id),
-                  onTap: () => context.push(Routes.hotelPath(hotel.id)),
-                  onFavorite: () =>
-                      ref.read(favoritesProvider.notifier).toggle(hotel.id),
-                  onPriceInfo: () =>
-                      showPriceInfoSheet(context, hotel, params.nights),
-                );
-              },
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          else ...[
+            const SliverToBoxAdapter(child: MapBanner()),
+            if (hotels.isEmpty)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: _EmptyState(),
+              )
+            else
+              SliverList.builder(
+                itemCount: hotels.length,
+                itemBuilder: (context, i) {
+                  final hotel = hotels[i];
+                  return HotelResultCard(
+                    key: Key('hotel_card_${hotel.id}'),
+                    hotel: hotel,
+                    city: params.displayCity,
+                    nights: params.nights,
+                    favorite: favorites.contains(hotel.id),
+                    onTap: () => context.push(Routes.hotelPath(hotel.id)),
+                    onFavorite: () =>
+                        ref.read(favoritesProvider.notifier).toggle(hotel.id),
+                    onPriceInfo: () =>
+                        showPriceInfoSheet(context, hotel, params.nights),
+                  );
+                },
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          ],
         ],
       ),
     );

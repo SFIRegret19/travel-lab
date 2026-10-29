@@ -30,7 +30,10 @@ void main() {
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
     final container = ProviderContainer(
-      overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+      overrides: [
+        todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
+        resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+      ],
     );
     addTearDown(container.dispose);
     setup?.call(container);
