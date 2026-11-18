@@ -10,6 +10,7 @@ import '../../core/widgets/photo_placeholder.dart';
 import '../../core/widgets/rating_badge.dart';
 import '../../data/mock_data.dart';
 import '../../data/models/hotel.dart';
+import '../demo/demo_sheet.dart';
 import '../search/search_params.dart';
 import '../search/search_provider.dart';
 
@@ -24,7 +25,10 @@ class HomeScreen extends ConsumerWidget {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          _Banner(onSearch: () => context.push(Routes.search)),
+          _Banner(
+            onSearch: () => context.push(Routes.search),
+            onDemo: () => showDemoSheet(context),
+          ),
           _ServicesRow(onHotels: () => context.push(Routes.search)),
           const _SectionTitle('Продолжить поиск'),
           EdgeFade(
@@ -70,9 +74,12 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _Banner extends StatelessWidget {
-  const _Banner({required this.onSearch});
+  const _Banner({required this.onSearch, required this.onDemo});
 
   final VoidCallback onSearch;
+
+  /// Долгое нажатие на заголовок открывает демо-панель режимов заглушки.
+  final VoidCallback onDemo;
 
   @override
   Widget build(BuildContext context) {
@@ -104,28 +111,33 @@ class _Banner extends StatelessWidget {
               ],
             ),
           ),
-          const Positioned(
+          Positioned(
             left: 24,
             right: 24,
             top: 190,
-            child: Column(
-              children: [
-                Text(
-                  'Ещё больше отдыха',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'ОТДЫХ\nРЯДОМ',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 40,
-                    height: 1,
-                    fontWeight: FontWeight.w800,
+            child: GestureDetector(
+              key: const Key('home_demo_trigger'),
+              behavior: HitTestBehavior.opaque,
+              onLongPress: onDemo,
+              child: const Column(
+                children: [
+                  Text(
+                    'Ещё больше отдыха',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
-                ),
-              ],
+                  SizedBox(height: 8),
+                  Text(
+                    'ОТДЫХ\nРЯДОМ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      height: 1,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Positioned(
