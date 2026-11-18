@@ -173,7 +173,6 @@ paths:
                     reviewsCount: 608
                     street: Павелецкая набережная
                     distanceKm: 2.7
-                    location: { lat: 55.7706, lon: 37.6515 }
                     pricePerNight: 1089
                     oldPricePerNight: 1210
                     badge: fewRooms
@@ -519,7 +518,7 @@ components:
       value:
         id: bk_5e8d2a
         number: TL-482915
-        hotel: { name: Автор на Павелецкой, address: 'Москва, Павелецкая набережная' }
+        hotel: { name: Автор на Павелецкой, street: Павелецкая набережная }
         room:
           title: Кровать в общем 8-местном номере для мужчин и женщин
           beds: 1 односпальная кровать
@@ -552,9 +551,9 @@ components:
         lat: { type: number, format: double, minimum: -90, maximum: 90 }
         lon: { type: number, format: double, minimum: -180, maximum: 180 }
 
-    HotelSummary:
+    HotelBase:
       type: object
-      description: Отель в выдаче и на карте.
+      description: Поля отеля, общие для выдачи и карточки.
       required:
         - id
         - name
@@ -563,7 +562,6 @@ components:
         - reviewsCount
         - street
         - distanceKm
-        - location
         - pricePerNight
         - imageHue
       properties:
@@ -577,7 +575,6 @@ components:
         reviewsCount: { type: integer, minimum: 0 }
         street: { type: string }
         distanceKm: { type: number, format: float, minimum: 0, description: 'Расстояние до центра города, км.' }
-        location: { $ref: '#/components/schemas/GeoPoint' }
         pricePerNight: { type: integer, minimum: 0, description: 'Цена за ночь, ₽.' }
         oldPricePerNight:
           type: integer
@@ -598,6 +595,15 @@ components:
           minimum: 0
           maximum: 360
           description: 'Оттенок заглушки вместо фото (0–360). В боевом API здесь был бы список ссылок на фото.'
+
+    HotelSummary:
+      description: 'Отель в выдаче и на карте: общие поля и координаты.'
+      allOf:
+        - $ref: '#/components/schemas/HotelBase'
+        - type: object
+          required: [location]
+          properties:
+            location: { $ref: '#/components/schemas/GeoPoint' }
 
     HotelSearchResult:
       type: object
@@ -658,7 +664,7 @@ components:
     HotelDetails:
       description: 'Отель для страницы «Карточка отеля»: данные выдачи и подробности.'
       allOf:
-        - $ref: '#/components/schemas/HotelSummary'
+        - $ref: '#/components/schemas/HotelBase'
         - type: object
           required:
             - description
@@ -821,10 +827,13 @@ components:
 
     BookingHotel:
       type: object
-      required: [name, address]
+      required: [name, street]
       properties:
         name: { type: string }
-        address: { type: string, example: 'Москва, Павелецкая набережная' }
+        street:
+          type: string
+          example: Павелецкая набережная
+          description: 'Улица. Город экран берёт из параметров поиска: отели вымышленные и к городу не привязаны.'
 
     BookingRoom:
       type: object
