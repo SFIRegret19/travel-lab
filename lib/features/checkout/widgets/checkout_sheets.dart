@@ -19,10 +19,14 @@ Future<void> showPriceChangedSheet(
     context: context,
     isDismissible: false,
     enableDrag: false,
+    // Без isScrollControlled высота шторки ограничена 9/16 экрана, и на
+    // телефоне кнопка уходила под системную панель навигации.
+    isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: AppColors.surface,
     shape: _shape,
     builder: (_) => SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 40, 20, 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,

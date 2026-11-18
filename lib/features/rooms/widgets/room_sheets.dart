@@ -125,10 +125,12 @@ Future<void> showCancellationSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: AppColors.surface,
     shape: _shape,
     builder: (_) => SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
