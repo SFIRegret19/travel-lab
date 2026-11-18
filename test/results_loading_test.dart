@@ -118,6 +118,31 @@ void main() {
     expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
   });
 
+  testWidgets('повторный вход грузит выдачу заново, старая ошибка не липнет', (
+    tester,
+  ) async {
+    final container = await open(
+      tester,
+      settings: const MockSettings(latency: delay, offline: true),
+    );
+    await finishLoading(tester);
+    expect(find.byKey(const Key('error_state')), findsOneWidget);
+
+    // Вышли на главный, сеть появилась, зашли в выдачу снова.
+    appRouter.go(Routes.home);
+    await tester.pumpAndSettle();
+    container
+        .read(mockSettingsProvider.notifier)
+        .update((s) => s.copyWith(offline: false));
+    appRouter.go(Routes.results);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byKey(const Key('results_loading')), findsOneWidget);
+    await finishLoading(tester);
+    expect(find.byKey(const Key('error_state')), findsNothing);
+    expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
+  });
+
   testWidgets('ошибка сервера 500 показывает «Сервис недоступен»', (
     tester,
   ) async {

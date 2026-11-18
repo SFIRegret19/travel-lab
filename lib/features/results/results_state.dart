@@ -145,14 +145,17 @@ class FiltersNotifier extends Notifier<HotelFilters> {
 
 /// Ответ `GET /hotels` для текущих параметров поиска. Перезапрашивается только
 /// при смене поиска: фильтры и сортировка применяются к полученному списку.
-final searchResultsProvider = FutureProvider<List<Hotel>>(
+///
+/// Провайдер живёт, пока открыта выдача (или карта над ней): каждый новый вход
+/// на экран загружает список заново, а старая ошибка не остаётся в кэше.
+final searchResultsProvider = FutureProvider.autoDispose<List<Hotel>>(
   (ref) => ref.watch(travelApiProvider).searchHotels(ref.watch(searchProvider)),
   retry: noRetry,
 );
 
 /// Выдача на экране: загруженные отели, фильтры и сортировка. Пока список
 /// грузится или не загрузился, он пуст.
-final resultsProvider = Provider<List<Hotel>>((ref) {
+final resultsProvider = Provider.autoDispose<List<Hotel>>((ref) {
   return applyResults(
     ref.watch(searchResultsProvider).value ?? const [],
     ref.watch(searchProvider),
