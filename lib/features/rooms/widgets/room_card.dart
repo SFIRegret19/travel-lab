@@ -13,14 +13,11 @@ class RoomCard extends StatelessWidget {
     super.key,
     required this.room,
     required this.nights,
-    required this.cancelUntil,
     required this.onSelect,
   });
 
   final Room room;
   final int nights;
-
-  final DateTime cancelUntil;
   final ValueChanged<RoomOffer> onSelect;
 
   @override
@@ -116,7 +113,6 @@ class RoomCard extends StatelessWidget {
                           index: i,
                           offer: room.offers[i],
                           nights: nights,
-                          cancelUntil: cancelUntil,
                           onSelect: () => onSelect(room.offers[i]),
                         ),
                       ),
@@ -227,7 +223,6 @@ class _OfferBox extends StatelessWidget {
     required this.index,
     required this.offer,
     required this.nights,
-    required this.cancelUntil,
     required this.onSelect,
   });
 
@@ -235,7 +230,6 @@ class _OfferBox extends StatelessWidget {
   final int index;
   final RoomOffer offer;
   final int nights;
-  final DateTime cancelUntil;
   final VoidCallback onSelect;
 
   @override
@@ -331,14 +325,13 @@ class _OfferBox extends StatelessWidget {
             key: Key('offer_cancel_$suffix'),
             onTap: () => showCancellationSheet(
               context,
-              refundable: offer.refundable,
-              until: cancelUntil,
+              until: offer.freeCancellationUntil,
             ),
             child: Row(
               children: [
                 Flexible(
                   child: Text(
-                    cancelText(offer, cancelUntil),
+                    cancelText(offer),
                     style: TextStyle(
                       fontSize: 16,
                       color: offer.refundable ? AppColors.ratingGreen : null,

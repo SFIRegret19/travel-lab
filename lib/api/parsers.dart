@@ -128,6 +128,9 @@ RoomOffer offerFromJson(Json j) {
   );
 }
 
+/// `{from: 14:00, to: 00:00}` → «14:00 - 00:00».
+String _timeWindow(Json w) => '${w['from']} - ${w['to']}';
+
 Booking bookingFromJson(Json j) {
   final hotel = j['hotel'] as Json;
   final room = j['room'] as Json;
@@ -140,6 +143,8 @@ Booking bookingFromJson(Json j) {
     number: j['number'] as String,
     hotelName: hotel['name'] as String,
     street: hotel['street'] as String,
+    checkInTime: _timeWindow(hotel['checkIn'] as Json),
+    checkOutTime: _timeWindow(hotel['checkOut'] as Json),
     roomTitle: room['title'] as String,
     beds: room['beds'] as String,
     roomImageHue: (room['imageHue'] as num).toDouble(),

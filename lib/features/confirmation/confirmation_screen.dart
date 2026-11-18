@@ -7,20 +7,25 @@ import '../../core/format/formatters.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/time/today_provider.dart';
-import '../../data/hotel_details.dart';
+import '../../core/widgets/error_state.dart';
+import '../../core/widgets/skeleton.dart';
 import '../../data/hotel_rooms.dart';
-import '../checkout/order.dart';
+import '../../data/models/booking.dart';
 import '../checkout/widgets/booking_cards.dart';
+import '../checkout/widgets/payment_cards.dart';
 import '../hotel/widgets/section_card.dart';
 import '../search/search_provider.dart';
+import 'confirmation_state.dart';
 
 /// Экран после оплаты. В оригинале его нет, оформлен в стиле остальных.
 class ConfirmationScreen extends ConsumerWidget {
-  const ConfirmationScreen({super.key});
+  const ConfirmationScreen({super.key, required this.bookingId});
+
+  final String bookingId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final order = ref.watch(orderProvider);
+    final booking = ref.watch(bookingProvider(bookingId));
 
     // Назад с оплаченного заказа возвращаться некуда: ведём на главный.
     return PopScope(
@@ -28,36 +33,43 @@ class ConfirmationScreen extends ConsumerWidget {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) context.go(Routes.home);
       },
-      child: order == null ? const _Empty() : _Confirmed(order: order),
+      child: booking.isLoading
+          ? const _Loading()
+          : booking.hasError
+          ? Scaffold(
+              body: SafeArea(
+                child: ErrorState(
+                  error: booking.error!,
+                  onRetry: () => ref.invalidate(bookingProvider(bookingId)),
+                  onBack: () => context.go(Routes.home),
+                ),
+              ),
+            )
+          : _Confirmed(booking: booking.requireValue),
     );
   }
 }
 
-class _Empty extends StatelessWidget {
-  const _Empty();
+class _Loading extends StatelessWidget {
+  const _Loading();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
+      key: Key('confirmation_loading'),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Нет оформленного заказа',
-                key: Key('confirmation_empty'),
-                style: TextStyle(fontSize: 22),
-              ),
-              const SizedBox(height: 24),
-              FilledButton(
-                key: const Key('confirmation_home'),
-                onPressed: () => context.go(Routes.home),
-                child: const Text('На главный'),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            SizedBox(height: 32),
+            Skeleton(height: 88, width: 88, radius: 44),
+            SizedBox(height: 20),
+            Skeleton(height: 32, width: 280),
+            SizedBox(height: 12),
+            Skeleton(height: 20, width: 160),
+            SizedBox(height: 24),
+            SkeletonCard(lines: 4),
+            SkeletonCard(lines: 3),
+          ],
         ),
       ),
     );
@@ -65,24 +77,40 @@ class _Empty extends StatelessWidget {
 }
 
 class _Confirmed extends ConsumerWidget {
-  const _Confirmed({required this.order});
+  const _Confirmed({required this.booking});
 
-  final Order order;
+  final Booking booking;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selection = order.selection;
-    final hotel = selection.hotel;
-    final offer = selection.offer;
+    final b = booking;
     final params = ref.watch(searchProvider);
     final today = ref.watch(todayProvider);
-    final details = detailsFor(hotel);
     final daysUntil = DateTime.utc(
-      order.checkIn.year,
-      order.checkIn.month,
-      order.checkIn.day,
+      b.checkIn.year,
+      b.checkIn.month,
+      b.checkIn.day,
     ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
-    final remaining = order.total - order.paidNow;
+    final room = Room(
+      id: '',
+      title: b.roomTitle,
+      area: 0,
+      beds: b.beds,
+      amenityGroups: {'': b.roomAmenities},
+      offers: const [],
+      imageHue: b.roomImageHue,
+    );
+    final offer = RoomOffer(
+      id: '',
+      meal: b.mealPlan,
+      refundable: b.freeCancellationUntil != null,
+      price: 0,
+      freeCancellationUntil: b.freeCancellationUntil,
+    );
+    final payMethod = payMethods.firstWhere(
+      (m) => m.code == b.payMethod,
+      orElse: () => payMethods.first,
+    );
 
     return Scaffold(
       bottomNavigationBar: SafeArea(
@@ -130,7 +158,7 @@ class _Confirmed extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Заказ ${order.number}',
+                    'Заказ ${b.number}',
                     key: const Key('confirmation_number'),
                     style: const TextStyle(
                       fontSize: 18,
@@ -142,7 +170,7 @@ class _Confirmed extends ConsumerWidget {
                     tooltip: 'Скопировать номер заказа',
                     icon: const Icon(Icons.copy_rounded, size: 20),
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(text: order.number));
+                      Clipboard.setData(ClipboardData(text: b.number));
                       ScaffoldMessenger.of(context)
                         ..clearSnackBars()
                         ..showSnackBar(
@@ -158,37 +186,34 @@ class _Confirmed extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 child: Text(
-                  'Подтверждение отправим на ${order.email}',
+                  'Подтверждение отправим на ${b.email}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
               StayCard(
-                hotel: hotel,
-                address: '${params.displayCity}, ${hotel.street}',
-                checkIn: order.checkIn,
-                checkOut: order.checkOut,
+                hotelName: b.hotelName,
+                address: '${params.displayCity}, ${b.street}',
+                checkIn: b.checkIn,
+                checkOut: b.checkOut,
                 daysUntil: daysUntil,
-                checkInTime: details.checkInTime,
-                checkOutTime: details.checkOutTime,
+                checkInTime: b.checkInTime,
+                checkOutTime: b.checkOutTime,
               ),
               RoomSummaryCard(
-                room: selection.room,
+                room: room,
                 offer: offer,
-                cancelText: cancelText(
-                  offer,
-                  freeCancelUntil(order.checkIn, today),
-                ),
+                cancelText: cancelText(offer),
               ),
               SectionCard(
                 title: 'Гости',
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final name in order.guestNames)
-                      _Line(Icons.person_outline_rounded, name),
-                    _Line(Icons.mail_outline_rounded, order.email),
-                    _Line(Icons.phone_outlined, order.phone),
+                    for (final guest in b.guests)
+                      _Line(Icons.person_outline_rounded, guest.fullName),
+                    _Line(Icons.mail_outline_rounded, b.email),
+                    _Line(Icons.phone_outlined, b.phone),
                   ],
                 ),
               ),
@@ -196,19 +221,19 @@ class _Confirmed extends ConsumerWidget {
                 title: 'Оплата',
                 child: Column(
                   children: [
-                    _Pair('Способ', order.payMethod),
-                    if (order.lateCheckout)
+                    _Pair('Способ', payMethod.label),
+                    if (b.lateCheckout)
                       const _Pair('Услуги', 'Поздний выезд до 23:00'),
-                    _Pair('Стоимость', formatPrice(order.total)),
+                    _Pair('Стоимость', formatPrice(b.total)),
                     _Pair(
                       'Оплачено сейчас',
-                      formatPrice(order.paidNow),
+                      formatPrice(b.paidNow),
                       key: const Key('confirmation_paid'),
                     ),
-                    if (remaining > 0)
+                    if (b.remaining > 0)
                       _Pair(
                         'Остальное',
-                        '${formatPrice(remaining)}, 3 платежа',
+                        '${formatPrice(b.remaining)}, 3 платежа',
                         key: const Key('confirmation_remaining'),
                       ),
                   ],

@@ -189,6 +189,9 @@ DateTime freeCancelUntil(DateTime? checkIn, DateTime today) {
   return date.isBefore(today) ? today : date;
 }
 
-String cancelText(RoomOffer offer, DateTime until) => offer.refundable
-    ? 'Бесплатная отмена до ${formatDayMonth(until)}'
-    : 'Оплата не возвращается';
+String cancelText(RoomOffer offer) {
+  final until = offer.freeCancellationUntil;
+  return until == null
+      ? 'Оплата не возвращается'
+      : 'Бесплатная отмена до ${formatDayMonth(until)}';
+}

@@ -76,6 +76,8 @@ class Booking {
     required this.number,
     required this.hotelName,
     required this.street,
+    required this.checkInTime,
+    required this.checkOutTime,
     required this.roomTitle,
     required this.beds,
     required this.roomImageHue,
@@ -98,6 +100,10 @@ class Booking {
   final String number;
   final String hotelName;
   final String street;
+
+  /// «14:00 - 00:00».
+  final String checkInTime;
+  final String checkOutTime;
   final String roomTitle;
   final String beds;
   final double roomImageHue;

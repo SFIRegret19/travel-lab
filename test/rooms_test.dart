@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:travel_lab/api/mock/mock_settings.dart';
 import 'package:travel_lab/app.dart';
 import 'package:travel_lab/core/router/app_router.dart';
 import 'package:travel_lab/core/router/routes.dart';
 import 'package:travel_lab/core/time/today_provider.dart';
 import 'package:travel_lab/features/rooms/booking_selection.dart';
+
+import 'test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -17,19 +20,34 @@ void main() {
     await loader.load();
   });
 
-  Future<ProviderContainer> openRooms(WidgetTester tester, String id) async {
+  Future<ProviderContainer> openRooms(
+    WidgetTester tester,
+    String id, {
+    MockSettings settings = const MockSettings(latency: Duration.zero),
+    bool settle = true,
+  }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
     final container = ProviderContainer(
-      overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+      overrides: [
+        todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
+        instantMockApi,
+      ],
     );
     addTearDown(container.dispose);
+    container.read(mockSettingsProvider.notifier).update((_) => settings);
     await tester.pumpWidget(
       UncontrolledProviderScope(container: container, child: const TravelApp()),
     );
     appRouter.go(Routes.roomsPath(id));
-    await tester.pumpAndSettle();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      // Загрузка анимирована бесконечно: pumpAndSettle здесь не годится.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     return container;
   }
 
@@ -41,9 +59,60 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('неизвестный отель показывает заглушку', (tester) async {
+  testWidgets('неизвестный отель: ошибка 404 без повтора', (tester) async {
     await openRooms(tester, 'нет-такого');
-    expect(find.byKey(const Key('rooms_not_found')), findsOneWidget);
+    expect(find.byKey(const Key('error_state')), findsOneWidget);
+    expect(find.text('Отель не найден'), findsOneWidget);
+    expect(find.byKey(const Key('error_retry')), findsNothing);
+  });
+
+  testWidgets('пока номера грузятся, показан скелетон', (tester) async {
+    await openRooms(
+      tester,
+      '3',
+      settings: const MockSettings(latency: Duration(milliseconds: 500)),
+      settle: false,
+    );
+    expect(find.byKey(const Key('rooms_loading')), findsOneWidget);
+    expect(find.byKey(const Key('room_r0')), findsNothing);
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('rooms_loading')), findsNothing);
+    expect(find.byKey(const Key('room_r0')), findsOneWidget);
+  });
+
+  testWidgets('нет свободных номеров это не ошибка', (tester) async {
+    await openRooms(
+      tester,
+      '3',
+      settings: const MockSettings(latency: Duration.zero, noRooms: true),
+    );
+    expect(find.byKey(const Key('rooms_empty')), findsOneWidget);
+    expect(find.text('Нет свободных номеров'), findsOneWidget);
+    expect(find.byKey(const Key('error_state')), findsNothing);
+    await tester.tap(find.byKey(const Key('rooms_change_dates')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('rooms_empty')), findsNothing);
+  });
+
+  testWidgets('нет сети: ошибка и «Повторить» загружает номера', (
+    tester,
+  ) async {
+    final container = await openRooms(
+      tester,
+      '3',
+      settings: const MockSettings(latency: Duration.zero, offline: true),
+    );
+    expect(find.text('Нет соединения'), findsOneWidget);
+    expect(find.byKey(const Key('room_r0')), findsNothing);
+
+    container
+        .read(mockSettingsProvider.notifier)
+        .update((s) => s.copyWith(offline: false));
+    await tester.tap(find.byKey(const Key('error_retry')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('error_state')), findsNothing);
+    expect(find.byKey(const Key('room_r0')), findsOneWidget);
   });
 
   testWidgets('цена первого тарифа совпадает с ценой отеля', (tester) async {

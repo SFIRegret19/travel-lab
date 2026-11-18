@@ -10,8 +10,10 @@ import '../checkout_pricing.dart';
 export '../../../data/models/booking.dart' show PayMode;
 
 class PayMethod {
-  const PayMethod(this.title, this.caption, this.label, this.icon);
+  const PayMethod(this.code, this.title, this.caption, this.label, this.icon);
 
+  /// Код способа оплаты в запросе `POST /bookings`.
+  final String code;
   final String title;
   final String caption;
   final String label;
@@ -20,13 +22,14 @@ class PayMethod {
 
 const payMethods = [
   PayMethod(
+    'mastercard',
     'Mastercard',
     '•• 4821',
     'Mastercard •• 4821',
     Icons.credit_card_rounded,
   ),
-  PayMethod('СБП', 'Без карты', 'СБП', Icons.qr_code_2_rounded),
-  PayMethod('Мир', '•• 7305', 'Мир •• 7305', Icons.credit_card_rounded),
+  PayMethod('sbp', 'СБП', 'Без карты', 'СБП', Icons.qr_code_2_rounded),
+  PayMethod('mir', 'Мир', '•• 7305', 'Мир •• 7305', Icons.credit_card_rounded),
 ];
 
 class PaymentCard extends StatelessWidget {
@@ -246,6 +249,13 @@ class PriceSummaryCard extends StatelessWidget {
             _Line('Скидка', '− ${formatPrice(price.discount)}'),
           if (price.late > 0)
             _Line('Поздний выезд', '+ ${formatPrice(price.late)}'),
+          if (price.surcharge != 0)
+            _Line(
+              'Изменение цены',
+              '${price.surcharge > 0 ? '+' : '−'} '
+                  '${formatPrice(price.surcharge.abs())}',
+              key: const Key('summary_surcharge'),
+            ),
           if (promo != null)
             _Line(
               'Промокод $promo',

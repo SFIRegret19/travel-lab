@@ -7,15 +7,17 @@ import '../../core/format/formatters.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/edge_fade.dart';
+import '../../core/widgets/error_state.dart';
 import '../../core/widgets/photo_placeholder.dart';
+import '../../core/widgets/skeleton.dart';
 import '../../data/hotel_details.dart';
 import '../../data/hotel_reviews.dart';
-import '../../data/hotels_catalog.dart';
 import '../../data/models/hotel.dart';
 import '../results/results_state.dart';
 import '../results/widgets/price_info_sheet.dart';
 import '../search/search_params.dart';
 import '../search/search_provider.dart';
+import 'hotel_state.dart';
 import 'widgets/category_bars.dart';
 import 'widgets/review_card.dart';
 import 'widgets/section_card.dart';
@@ -27,20 +29,69 @@ class HotelScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hotel = hotelById(hotelId);
-    if (hotel == null) {
+    final page = ref.watch(hotelPageProvider(hotelId));
+    if (page.isLoading) return const _HotelSkeleton();
+    if (page.hasError) {
       return Scaffold(
-        appBar: AppBar(),
-        body: const Center(
-          child: Text('Отель не найден', key: Key('hotel_not_found')),
+        appBar: AppBar(
+          leading: IconButton(
+            key: const Key('hotel_back'),
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: ErrorState(
+          error: page.error!,
+          onRetry: () => ref.invalidate(hotelPageProvider(hotelId)),
+          onBack: () => context.pop(),
         ),
       );
     }
+    return _HotelContent(page: page.requireValue);
+  }
+}
 
+/// Пока отель грузится: шапка с кнопкой «назад» и серые заготовки блоков.
+class _HotelSkeleton extends StatelessWidget {
+  const _HotelSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: const Key('hotel_loading'),
+      appBar: AppBar(
+        leading: IconButton(
+          key: const Key('hotel_back'),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        children: const [
+          Skeleton(height: 220, radius: 0),
+          SizedBox(height: 8),
+          SkeletonCard(lines: 3),
+          SkeletonCard(lines: 2),
+          SkeletonCard(lines: 4),
+        ],
+      ),
+    );
+  }
+}
+
+class _HotelContent extends ConsumerWidget {
+  const _HotelContent({required this.page});
+
+  final HotelPage page;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hotel = page.hotel;
     final params = ref.watch(searchProvider);
     final nights = params.nights;
-    final details = detailsFor(hotel);
-    final reviews = reviewsFor(hotel);
+    final details = page.details;
+    final reviews = page.reviews;
     final favorite = ref.watch(favoritesProvider).contains(hotel.id);
     final total = hotel.price * nights;
     final subtitle =

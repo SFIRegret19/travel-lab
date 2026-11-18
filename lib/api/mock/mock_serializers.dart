@@ -115,7 +115,18 @@ Json bookingJson({
   return {
     'id': id,
     'number': number,
-    'hotel': {'name': hotel.name, 'street': hotel.street},
+    'hotel': {
+      'name': hotel.name,
+      'street': hotel.street,
+      'checkIn': {
+        'from': detailsFor(hotel).checkInFrom,
+        'to': detailsFor(hotel).checkInTo,
+      },
+      'checkOut': {
+        'from': detailsFor(hotel).checkOutFrom,
+        'to': detailsFor(hotel).checkOutTo,
+      },
+    },
     'room': {
       'title': room.title,
       'beds': room.beds,

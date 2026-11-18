@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:travel_lab/api/mock/mock_settings.dart';
 import 'package:travel_lab/app.dart';
 import 'package:travel_lab/core/format/formatters.dart';
 import 'package:travel_lab/core/router/app_router.dart';
@@ -141,11 +142,51 @@ void main() {
       return container;
     }
 
-    testWidgets('неизвестный id показывает «Отель не найден»', (tester) async {
+    testWidgets('неизвестный id: ошибка 404 «Отель не найден»', (tester) async {
       await openApp(tester);
       appRouter.go(Routes.hotelPath('нет-такого'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('hotel_not_found')), findsOneWidget);
+      expect(find.byKey(const Key('error_state')), findsOneWidget);
+      expect(find.text('Отель не найден'), findsOneWidget);
+      expect(find.byKey(const Key('error_retry')), findsNothing);
+    });
+
+    testWidgets('пока отель грузится, показан скелетон', (tester) async {
+      final container = await openApp(tester);
+      container
+          .read(mockSettingsProvider.notifier)
+          .update(
+            (s) => s.copyWith(latency: const Duration(milliseconds: 500)),
+          );
+      appRouter.go(Routes.hotelPath('3'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byKey(const Key('hotel_loading')), findsOneWidget);
+      expect(find.byKey(const Key('hotel_scroll')), findsNothing);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('hotel_loading')), findsNothing);
+      expect(find.byKey(const Key('hotel_scroll')), findsOneWidget);
+    });
+
+    testWidgets('нет сети: ошибка и «Повторить» открывает отель', (
+      tester,
+    ) async {
+      final container = await openApp(tester);
+      container
+          .read(mockSettingsProvider.notifier)
+          .update((s) => s.copyWith(offline: true));
+      appRouter.go(Routes.hotelPath('3'));
+      await tester.pumpAndSettle();
+      expect(find.text('Нет соединения'), findsOneWidget);
+      expect(find.byKey(const Key('hotel_scroll')), findsNothing);
+
+      container
+          .read(mockSettingsProvider.notifier)
+          .update((s) => s.copyWith(offline: false));
+      await tester.tap(find.byKey(const Key('error_retry')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('hotel_scroll')), findsOneWidget);
     });
 
     testWidgets('без дат цена за одну ночь, в форме «Заезд — выезд»', (

@@ -33,11 +33,15 @@ Future<void> showPriceChangedSheet(
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Такое иногда бывает, но у нас хорошая новость - цена стала '
-              'ниже. Сегодня, однозначно, ваш день!',
+            Text(
+              newPrice < oldPrice
+                  ? 'Такое иногда бывает, но у нас хорошая новость - цена '
+                        'стала ниже. Сегодня, однозначно, ваш день!'
+                  : 'К сожалению, цена выросла. Проверьте новую сумму и '
+                        'подтвердите оплату ещё раз.',
+              key: const Key('price_changed_text'),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 17),
+              style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 28),
             IntrinsicHeight(
@@ -61,12 +65,18 @@ Future<void> showPriceChangedSheet(
                     child: _PriceTile(
                       title: 'Новая цена',
                       value: formatPrice(newPrice),
-                      titleColor: AppColors.ratingGreen,
-                      valueStyle: const TextStyle(
+                      titleColor: newPrice < oldPrice
+                          ? AppColors.ratingGreen
+                          : AppColors.textPrimary,
+                      valueStyle: TextStyle(
                         fontSize: 28,
-                        color: AppColors.ratingGreen,
+                        color: newPrice < oldPrice
+                            ? AppColors.ratingGreen
+                            : AppColors.textPrimary,
                       ),
-                      badge: '−${formatPrice(oldPrice - newPrice)}',
+                      badge:
+                          '${newPrice < oldPrice ? '−' : '+'}'
+                          '${formatPrice((oldPrice - newPrice).abs())}',
                     ),
                   ),
                 ],

@@ -20,6 +20,7 @@ class CheckoutPrice {
     this.lateCheckout = false,
     this.lateCheckoutPrice = 0,
     this.promoPercent = 0,
+    this.surcharge = 0,
   });
 
   /// Сумма за весь срок, которую гость видел на экране номеров.
@@ -29,6 +30,10 @@ class CheckoutPrice {
   final bool lateCheckout;
   final int lateCheckoutPrice;
   final int promoPercent;
+
+  /// Изменение суммы, о котором сообщил сервер (`PRICE_CHANGED`): новая сумма
+  /// минус та, что насчитало приложение. Может быть отрицательным.
+  final int surcharge;
 
   int get current => priceAfterChange(shownTotal);
 
@@ -42,7 +47,7 @@ class CheckoutPrice {
   int get promo => (current * promoPercent / 100).round();
   int get late => lateCheckout ? lateCheckoutPrice : 0;
 
-  int get total => gross - discount - promo + late;
+  int get total => gross - discount - promo + late + surcharge;
 
   /// Первый платёж при оплате частями: сумма на 4, с округлением вверх.
   int get splitPart => (total / 4).ceil();

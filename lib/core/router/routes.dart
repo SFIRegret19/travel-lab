@@ -8,9 +8,11 @@ abstract final class Routes {
   static const rooms = '/hotel/:id/rooms';
   static const reviews = '/hotel/:id/reviews';
   static const checkout = '/checkout';
-  static const confirmation = '/confirmation';
+  static const confirmation = '/confirmation/:id';
 
   static String hotelPath(String id) => '/hotel/$id';
   static String roomsPath(String id) => '/hotel/$id/rooms';
   static String reviewsPath(String id) => '/hotel/$id/reviews';
+  static String confirmationPath(String bookingId) =>
+      '/confirmation/$bookingId';
 }

@@ -45,7 +45,8 @@ final appRouter = GoRouter(
     GoRoute(path: Routes.checkout, builder: (_, _) => const CheckoutScreen()),
     GoRoute(
       path: Routes.confirmation,
-      builder: (_, _) => const ConfirmationScreen(),
+      builder: (_, state) =>
+          ConfirmationScreen(bookingId: state.pathParameters['id']!),
     ),
   ],
 );

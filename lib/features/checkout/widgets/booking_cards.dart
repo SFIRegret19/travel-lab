@@ -10,7 +10,7 @@ import '../../hotel/widgets/section_card.dart';
 class StayCard extends StatelessWidget {
   const StayCard({
     super.key,
-    required this.hotel,
+    required this.hotelName,
     required this.address,
     required this.checkIn,
     required this.checkOut,
@@ -19,7 +19,7 @@ class StayCard extends StatelessWidget {
     required this.checkOutTime,
   });
 
-  final Hotel hotel;
+  final String hotelName;
   final String address;
   final DateTime checkIn;
   final DateTime checkOut;
@@ -31,7 +31,7 @@ class StayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionCard(
       titleWidget: Text(
-        hotel.name,
+        hotelName,
         style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
       ),
       child: Column(

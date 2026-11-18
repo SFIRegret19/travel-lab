@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:travel_lab/api/mock/mock_settings.dart';
 import 'package:travel_lab/app.dart';
 import 'package:travel_lab/core/router/app_router.dart';
 import 'package:travel_lab/core/router/routes.dart';
 import 'package:travel_lab/core/time/today_provider.dart';
+import 'package:travel_lab/data/hotel_details.dart';
 import 'package:travel_lab/data/hotel_rooms.dart';
 import 'package:travel_lab/data/hotels_catalog.dart';
-import 'package:travel_lab/features/checkout/order.dart';
 import 'package:travel_lab/features/rooms/booking_selection.dart';
+
+import 'test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -24,21 +27,31 @@ void main() {
     WidgetTester tester, {
     bool withSelection = true,
     bool dismissModal = true,
+    MockSettings settings = const MockSettings(latency: Duration.zero),
   }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.75;
     addTearDown(tester.view.reset);
     final container = ProviderContainer(
-      overrides: [todayProvider.overrideWithValue(DateTime(2026, 10, 26))],
+      overrides: [
+        todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
+        instantMockApi,
+      ],
     );
     addTearDown(container.dispose);
+    container.read(mockSettingsProvider.notifier).update((_) => settings);
     if (withSelection) {
-      final hotel = hotelById('3')!;
+      final hotel = hotelsCatalog.firstWhere((h) => h.id == '3');
       final room = roomsFor(hotel).first;
       container
           .read(bookingSelectionProvider.notifier)
           .select(
-            BookingSelection(hotel: hotel, room: room, offer: room.offers[0]),
+            BookingSelection(
+              hotel: hotel,
+              details: detailsFor(hotel),
+              room: room,
+              offer: room.offers[0],
+            ),
           );
     }
     await tester.pumpWidget(
@@ -158,23 +171,157 @@ void main() {
     expect(find.text('Оплатить 1 035 ₽'), findsOneWidget);
   });
 
-  testWidgets('оплата сохраняет заказ и ведёт к подтверждению', (tester) async {
-    final container = await openCheckout(tester);
+  testWidgets('оплата создаёт бронь и ведёт к подтверждению', (tester) async {
+    await openCheckout(tester);
     await tapKey(tester, 'checkout_pay');
     expect(find.text('Бронирование подтверждено'), findsOneWidget);
-    final order = container.read(orderProvider)!;
-    expect(order.total, 1035);
-    expect(order.paidNow, 1035);
-    expect(order.guestNames, ['Иванов Иван']);
-    expect(order.selection.hotel.id, '3');
+    expect(find.text('Заказ TL-482916'), findsOneWidget);
+    expect(find.text('Иванов Иван'), findsOneWidget);
+    final paid = find.byKey(const Key('confirmation_paid'));
+    await tester.ensureVisible(paid);
+    expect(
+      find.descendant(of: paid, matching: find.text('1 035 ₽')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('оплата частями списывает первый платёж', (tester) async {
-    final container = await openCheckout(tester);
+    await openCheckout(tester);
     await tapKey(tester, 'pay_mode_split');
     await tapKey(tester, 'checkout_pay');
-    final order = container.read(orderProvider)!;
-    expect(order.total, 1035);
-    expect(order.paidNow, 259);
+    final paid = find.byKey(const Key('confirmation_paid'));
+    await tester.ensureVisible(paid);
+    expect(
+      find.descendant(of: paid, matching: find.text('259 ₽')),
+      findsOneWidget,
+    );
+  });
+
+  group('ответы сервера', () {
+    testWidgets('пока идёт запрос, кнопка заблокирована и бронь одна', (
+      tester,
+    ) async {
+      await openCheckout(
+        tester,
+        settings: const MockSettings(latency: Duration(milliseconds: 500)),
+      );
+      final pay = find.byKey(const Key('checkout_pay'));
+      await tester.ensureVisible(pay);
+      await tester.pumpAndSettle();
+      await tester.tap(pay);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byKey(const Key('checkout_submitting')), findsOneWidget);
+      expect(find.text('Оформляем заказ…'), findsOneWidget);
+      expect(tester.widget<FilledButton>(pay).onPressed, isNull);
+
+      // Повторное нажатие во время запроса игнорируется.
+      await tester.tap(pay, warnIfMissed: false);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(find.text('Заказ TL-482916'), findsOneWidget);
+    });
+
+    testWidgets('цена выросла: модалка, новая сумма и повторная оплата', (
+      tester,
+    ) async {
+      await openCheckout(
+        tester,
+        settings: const MockSettings(
+          latency: Duration.zero,
+          priceChanged: true,
+        ),
+      );
+      await tapKey(tester, 'checkout_pay');
+      expect(find.text('Похоже, цена изменилась'), findsOneWidget);
+      expect(find.byKey(const Key('price_changed_text')), findsOneWidget);
+      Finder inSheet(String text) => find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.text(text),
+      );
+      expect(inSheet('1 035 ₽'), findsOneWidget);
+      expect(inSheet('1 076 ₽'), findsOneWidget);
+      expect(inSheet('+41 ₽'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('price_changed_ok')));
+      await tester.pumpAndSettle();
+      expect(find.text('Бронирование подтверждено'), findsNothing);
+      expect(totalText(tester), '1 076 ₽');
+      expect(find.byKey(const Key('summary_surcharge')), findsOneWidget);
+
+      await tapKey(tester, 'checkout_pay');
+      expect(find.text('Бронирование подтверждено'), findsOneWidget);
+      final paid = find.byKey(const Key('confirmation_paid'));
+      await tester.ensureVisible(paid);
+      expect(
+        find.descendant(of: paid, matching: find.text('1 076 ₽')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('тариф раскуплен: диалог и возврат', (tester) async {
+      await openCheckout(
+        tester,
+        settings: const MockSettings(latency: Duration.zero, soldOut: true),
+      );
+      await tapKey(tester, 'checkout_pay');
+      expect(find.byKey(const Key('offer_unavailable_dialog')), findsOneWidget);
+      expect(find.text('Номер уже забронирован'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('offer_unavailable_ok')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('offer_unavailable_dialog')), findsNothing);
+      expect(find.text('Бронирование подтверждено'), findsNothing);
+    });
+
+    testWidgets('сервер отклонил поля: ошибка под полем почты', (tester) async {
+      await openCheckout(
+        tester,
+        settings: const MockSettings(
+          latency: Duration.zero,
+          validationError: true,
+        ),
+      );
+      await tapKey(tester, 'checkout_pay');
+      expect(find.text('Некорректная почта'), findsOneWidget);
+      expect(find.text('Бронирование подтверждено'), findsNothing);
+      // Кнопка снова доступна: можно исправить и отправить заново.
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const Key('checkout_pay')))
+            .onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('нет сети: «Повторить» отправляет тот же заказ', (
+      tester,
+    ) async {
+      final container = await openCheckout(
+        tester,
+        settings: const MockSettings(latency: Duration.zero, offline: true),
+      );
+      await tapKey(tester, 'checkout_pay');
+      expect(find.text('Нет соединения. Заказ не оформлен'), findsOneWidget);
+      expect(find.text('Бронирование подтверждено'), findsNothing);
+      // Форма осталась заполненной.
+      expect(find.text('Иванов'), findsOneWidget);
+
+      container
+          .read(mockSettingsProvider.notifier)
+          .update((s) => s.copyWith(offline: false));
+      await tester.tap(find.text('Повторить'));
+      await tester.pumpAndSettle();
+      expect(find.text('Бронирование подтверждено'), findsOneWidget);
+      expect(find.text('Заказ TL-482916'), findsOneWidget);
+    });
+
+    testWidgets('ошибка сервера 500: снекбар с повтором', (tester) async {
+      await openCheckout(
+        tester,
+        settings: const MockSettings(latency: Duration.zero, serverError: true),
+      );
+      await tapKey(tester, 'checkout_pay');
+      expect(find.text('Сервис недоступен. Заказ не оформлен'), findsOneWidget);
+      expect(find.text('Повторить'), findsOneWidget);
+    });
   });
 }

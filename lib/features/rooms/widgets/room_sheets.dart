@@ -121,8 +121,7 @@ class _AmenitiesSheet extends StatelessWidget {
 
 Future<void> showCancellationSheet(
   BuildContext context, {
-  required bool refundable,
-  required DateTime until,
+  required DateTime? until,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -140,7 +139,7 @@ Future<void> showCancellationSheet(
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 28),
-            if (refundable) ...[
+            if (until != null) ...[
               _Stripe(
                 color: AppColors.ratingGreen,
                 text: 'Бесплатная отмена до ${formatDayMonth(until)}',
