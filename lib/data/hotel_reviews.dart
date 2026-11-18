@@ -1,3 +1,4 @@
+import '../core/format/formatters.dart';
 import 'models/hotel.dart';
 
 class Review {
@@ -6,7 +7,8 @@ class Review {
     required this.date,
     required this.rating,
     required this.liked,
-    required this.stay,
+    required this.stayMonth,
+    required this.nights,
     this.regular = false,
     this.reply,
   });
@@ -15,12 +17,15 @@ class Review {
   final DateTime date;
   final int rating;
   final String liked;
+  final DateTime stayMonth;
+  final int nights;
 
-  final String stay;
-
+  /// Метка «Наш гость».
   final bool regular;
-
   final String? reply;
+
+  /// «сентябрь 2026 · 1 ночь».
+  String get stay => '${formatStayMonth(stayMonth)} · ${formatNights(nights)}';
 }
 
 final _pool = <Review>[
@@ -29,7 +34,8 @@ final _pool = <Review>[
     date: DateTime(2026, 9, 9),
     rating: 5,
     liked: 'Чисто, тихо и очень удобно добираться от вокзала.',
-    stay: 'сентябрь 2026 · 1 ночь',
+    stayMonth: DateTime(2026, 9),
+    nights: 1,
     regular: true,
     reply: 'Спасибо, что выбрали нас! Будем рады видеть вас снова.',
   ),
@@ -38,14 +44,16 @@ final _pool = <Review>[
     date: DateTime(2026, 8, 21),
     rating: 4,
     liked: 'Приветливый персонал, быстрый заезд. Кофе в холле порадовал.',
-    stay: 'август 2026 · 2 ночи',
+    stayMonth: DateTime(2026, 8),
+    nights: 2,
   ),
   Review(
     author: 'Елена С.',
     date: DateTime(2026, 8, 2),
     rating: 5,
     liked: 'Хорошая цена за такое расположение, всё соответствует фото.',
-    stay: 'август 2026 · 3 ночи',
+    stayMonth: DateTime(2026, 8),
+    nights: 3,
     regular: true,
   ),
   Review(
@@ -53,7 +61,8 @@ final _pool = <Review>[
     date: DateTime(2026, 7, 14),
     rating: 4,
     liked: 'Удобная кровать, быстрый интернет, рядом много кафе.',
-    stay: 'июль 2026 · 1 ночь',
+    stayMonth: DateTime(2026, 7),
+    nights: 1,
     reply: 'Благодарим за отзыв, нам важно ваше мнение.',
   ),
   Review(
@@ -61,14 +70,16 @@ final _pool = <Review>[
     date: DateTime(2026, 6, 30),
     rating: 5,
     liked: 'Отличный сервис и вежливые сотрудники. Рекомендую.',
-    stay: 'июнь 2026 · 2 ночи',
+    stayMonth: DateTime(2026, 6),
+    nights: 2,
   ),
   Review(
     author: 'Сергей П.',
     date: DateTime(2026, 6, 5),
     rating: 3,
     liked: 'В целом неплохо, но хотелось бы тише по вечерам.',
-    stay: 'июнь 2026 · 1 ночь',
+    stayMonth: DateTime(2026, 6),
+    nights: 1,
   ),
 ];
 

@@ -9,12 +9,16 @@ class RoomOffer {
     required this.refundable,
     required this.price,
     this.oldPrice,
+    this.freeCancellationUntil,
   });
 
   final String id;
   final MealPlan meal;
 
   final bool refundable;
+
+  /// Последний день бесплатной отмены; задан, когда сервер знает даты поездки.
+  final DateTime? freeCancellationUntil;
   final int price;
   final int? oldPrice;
 

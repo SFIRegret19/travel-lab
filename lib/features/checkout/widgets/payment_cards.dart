@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import '../../../core/format/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/edge_fade.dart';
+import '../../../data/models/booking.dart';
 import '../../hotel/widgets/section_card.dart';
 import '../checkout_pricing.dart';
 
-enum PayMode { full, split }
+export '../../../data/models/booking.dart' show PayMode;
 
 class PayMethod {
   const PayMethod(this.title, this.caption, this.label, this.icon);

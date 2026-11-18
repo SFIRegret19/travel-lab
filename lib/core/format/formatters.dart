@@ -64,6 +64,24 @@ String formatDistance(double km) =>
 
 String formatGuests(int n) => '$n ${_plural(n, 'гость', 'гостя', 'гостей')}';
 
+const _stayMonths = [
+  'январь',
+  'февраль',
+  'март',
+  'апрель',
+  'май',
+  'июнь',
+  'июль',
+  'август',
+  'сентябрь',
+  'октябрь',
+  'ноябрь',
+  'декабрь',
+];
+
+/// «сентябрь 2026».
+String formatStayMonth(DateTime d) => '${_stayMonths[d.month - 1]} ${d.year}';
+
 /// Цена с неразрывными пробелами: «1 975 ₽».
 String formatPrice(int rubles) {
   final digits = rubles.toString();

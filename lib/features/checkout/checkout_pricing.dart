@@ -7,6 +7,10 @@ int? promoPercentFor(String code) => promoCodes[code.trim().toUpperCase()];
 /// что была на экране номеров (1 089 → 1 035).
 int priceAfterChange(int shown) => shown - (shown * 0.05).round();
 
+/// Доплата за поздний выезд: цена ночи отеля плюс 10 %, округлённая до десятков.
+int lateCheckoutPriceFor(int pricePerNight) =>
+    (pricePerNight * 1.1 / 10).round() * 10;
+
 /// Расчёт блока «Ваше бронирование». Все строки считаются разностями от
 /// одной суммы, чтобы они сходились с «К оплате» до рубля.
 class CheckoutPrice {

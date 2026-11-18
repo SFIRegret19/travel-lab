@@ -1,3 +1,5 @@
+import 'package:latlong2/latlong.dart';
+
 enum HotelBadge {
   none(null),
   fewRooms('Осталось мало номеров'),
@@ -38,6 +40,7 @@ class Hotel {
     this.wifi = true,
     this.parking = false,
     this.imageHue = 30,
+    this.location,
   });
 
   final String id;
@@ -63,6 +66,9 @@ class Hotel {
 
   /// Оттенок градиента-заглушки вместо фото (0–360).
   final double imageHue;
+
+  /// Координаты приходят от сервера вместе с выдачей; в каталоге их нет.
+  final LatLng? location;
 
   bool get isApartment => type == 'Апартаменты';
   bool get breakfast => meal != MealPlan.none;
