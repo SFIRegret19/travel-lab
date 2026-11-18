@@ -7,9 +7,11 @@ import 'package:travel_lab/core/format/formatters.dart';
 import 'package:travel_lab/core/router/app_router.dart';
 import 'package:travel_lab/data/hotels_catalog.dart';
 import 'package:travel_lab/core/router/routes.dart';
-import 'package:travel_lab/features/results/results_state.dart';
 import 'package:travel_lab/features/search/search_params.dart';
 import 'package:travel_lab/features/search/search_provider.dart';
+
+import 'test_helpers.dart';
+
 import 'package:travel_lab/core/time/today_provider.dart';
 
 void main() {
@@ -31,7 +33,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
-        resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+        instantMockApi,
       ],
     );
     addTearDown(container.dispose);
@@ -71,7 +73,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
-        resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+        instantMockApi,
       ],
     );
     addTearDown(container.dispose);
@@ -126,7 +128,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
-          resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+          instantMockApi,
         ],
       );
       addTearDown(container.dispose);
@@ -243,7 +245,7 @@ void main() {
       ProviderScope(
         overrides: [
           todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
-          resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+          instantMockApi,
         ],
         child: const TravelApp(),
       ),

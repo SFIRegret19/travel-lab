@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/hotels_catalog.dart';
+import '../../api/api_providers.dart';
 import '../../data/models/hotel.dart';
 import '../search/search_params.dart';
 import '../search/search_provider.dart';
@@ -143,15 +143,18 @@ class FiltersNotifier extends Notifier<HotelFilters> {
   void reset() => state = const HotelFilters();
 }
 
-/// Сколько «грузится» выдача при открытии и при смене параметров поиска.
-/// Нулевая длительность отключает экран загрузки (так делают тесты).
-final resultsLoadDurationProvider = Provider<Duration>(
-  (ref) => const Duration(milliseconds: 2500),
+/// Ответ `GET /hotels` для текущих параметров поиска. Перезапрашивается только
+/// при смене поиска: фильтры и сортировка применяются к полученному списку.
+final searchResultsProvider = FutureProvider<List<Hotel>>(
+  (ref) => ref.watch(travelApiProvider).searchHotels(ref.watch(searchProvider)),
+  retry: noRetry,
 );
 
+/// Выдача на экране: загруженные отели, фильтры и сортировка. Пока список
+/// грузится или не загрузился, он пуст.
 final resultsProvider = Provider<List<Hotel>>((ref) {
   return applyResults(
-    hotelsCatalog,
+    ref.watch(searchResultsProvider).value ?? const [],
     ref.watch(searchProvider),
     ref.watch(filtersProvider),
     ref.watch(sortProvider),

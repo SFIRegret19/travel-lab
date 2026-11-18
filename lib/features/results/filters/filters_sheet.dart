@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/format/formatters.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../data/hotels_catalog.dart';
 import '../../../data/models/hotel.dart';
 import '../../search/search_provider.dart';
 import '../results_state.dart';
@@ -29,9 +28,6 @@ Future<void> showFiltersSheet(
   );
 }
 
-/// Число отелей каталога с данной опцией. Другие фильтры не учитываются.
-int _count(bool Function(Hotel) test) => hotelsCatalog.where(test).length;
-
 class _FiltersSheet extends ConsumerStatefulWidget {
   const _FiltersSheet({required this.section});
 
@@ -43,6 +39,7 @@ class _FiltersSheet extends ConsumerStatefulWidget {
 
 class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
   late HotelFilters _draft;
+  List<Hotel> _hotels = const [];
   final _minController = TextEditingController();
   final _maxController = TextEditingController();
   final _priceKey = GlobalKey();
@@ -86,6 +83,9 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
         : '';
   }
 
+  /// Число загруженных отелей с данной опцией. Другие фильтры не учитываются.
+  int _count(bool Function(Hotel) test) => _hotels.where(test).length;
+
   void _update(HotelFilters next) => setState(() => _draft = next);
 
   void _onMinTyped(String text) {
@@ -120,7 +120,8 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
   Widget build(BuildContext context) {
     final params = ref.watch(searchProvider);
     final sort = ref.watch(sortProvider);
-    final found = applyResults(hotelsCatalog, params, _draft, sort).length;
+    _hotels = ref.watch(searchResultsProvider).value ?? const [];
+    final found = applyResults(_hotels, params, _draft, sort).length;
 
     final start = _draft.priceMin.clamp(0, _draft.priceMax).toDouble();
     final end = _draft.priceMax.toDouble();

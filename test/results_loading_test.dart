@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:travel_lab/api/mock/mock_settings.dart';
 import 'package:travel_lab/app.dart';
 import 'package:travel_lab/core/router/app_router.dart';
 import 'package:travel_lab/core/router/routes.dart';
 import 'package:travel_lab/core/time/today_provider.dart';
-import 'package:travel_lab/features/results/results_state.dart';
 import 'package:travel_lab/features/results/widgets/results_loading.dart';
 import 'package:travel_lab/features/search/search_provider.dart';
+
+import 'test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +25,7 @@ void main() {
 
   Future<ProviderContainer> open(
     WidgetTester tester, {
-    Duration load = delay,
+    MockSettings? settings,
   }) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.75;
@@ -31,10 +33,13 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
-        resultsLoadDurationProvider.overrideWithValue(load),
+        instantMockApi,
       ],
     );
     addTearDown(container.dispose);
+    container
+        .read(mockSettingsProvider.notifier)
+        .update((_) => settings ?? const MockSettings(latency: delay));
     await tester.pumpWidget(
       UncontrolledProviderScope(container: container, child: const TravelApp()),
     );
@@ -45,7 +50,12 @@ void main() {
     return container;
   }
 
-  testWidgets('сначала загрузка с фактом, потом список', (tester) async {
+  Future<void> finishLoading(WidgetTester tester) async {
+    await tester.pump(delay);
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('пока идёт запрос, показана загрузка с фактом', (tester) async {
     await open(tester);
     expect(find.byKey(const Key('results_loading')), findsOneWidget);
     expect(find.byKey(const Key('loading_globe')), findsOneWidget);
@@ -56,15 +66,15 @@ void main() {
     expect(find.byKey(const Key('results_pill')), findsOneWidget);
     expect(find.byKey(const Key('chip_sort')), findsNothing);
 
-    await tester.pump(delay);
-    await tester.pumpAndSettle();
+    await finishLoading(tester);
     expect(find.byKey(const Key('results_loading')), findsNothing);
     expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
     expect(find.byKey(const Key('chip_sort')), findsOneWidget);
   });
 
-  testWidgets('нулевая задержка показывает список сразу', (tester) async {
-    await open(tester, load: Duration.zero);
+  testWidgets('без задержки список виден сразу', (tester) async {
+    await open(tester, settings: const MockSettings(latency: Duration.zero));
+    await tester.pumpAndSettle();
     expect(find.byKey(const Key('results_loading')), findsNothing);
     expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
   });
@@ -73,18 +83,62 @@ void main() {
     tester,
   ) async {
     final container = await open(tester);
-    await tester.pump(delay);
-    await tester.pumpAndSettle();
+    await finishLoading(tester);
     expect(find.byKey(const Key('results_loading')), findsNothing);
 
     container.read(searchProvider.notifier).setAdults(2);
     await tester.pump();
     expect(find.byKey(const Key('results_loading')), findsOneWidget);
 
-    await tester.pump(delay);
-    await tester.pumpAndSettle();
+    await finishLoading(tester);
     expect(find.byKey(const Key('results_loading')), findsNothing);
     expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
+  });
+
+  testWidgets('нет сети: ошибка и «Повторить» возвращает список', (
+    tester,
+  ) async {
+    final container = await open(
+      tester,
+      settings: const MockSettings(latency: delay, offline: true),
+    );
+    await finishLoading(tester);
+    expect(find.byKey(const Key('error_state')), findsOneWidget);
+    expect(find.text('Нет соединения'), findsOneWidget);
+    expect(find.byKey(const Key('hotel_card_3')), findsNothing);
+
+    container
+        .read(mockSettingsProvider.notifier)
+        .update((s) => s.copyWith(offline: false));
+    await tester.tap(find.byKey(const Key('error_retry')));
+    await tester.pump();
+    expect(find.byKey(const Key('results_loading')), findsOneWidget);
+    await finishLoading(tester);
+    expect(find.byKey(const Key('error_state')), findsNothing);
+    expect(find.byKey(const Key('hotel_card_3')), findsOneWidget);
+  });
+
+  testWidgets('ошибка сервера 500 показывает «Сервис недоступен»', (
+    tester,
+  ) async {
+    await open(
+      tester,
+      settings: const MockSettings(latency: delay, serverError: true),
+    );
+    await finishLoading(tester);
+    expect(find.text('Сервис недоступен'), findsOneWidget);
+    expect(find.byKey(const Key('error_retry')), findsOneWidget);
+  });
+
+  testWidgets('пустая выдача это не ошибка', (tester) async {
+    await open(
+      tester,
+      settings: const MockSettings(latency: delay, noResults: true),
+    );
+    await finishLoading(tester);
+    expect(find.byKey(const Key('error_state')), findsNothing);
+    expect(find.text('Ничего не найдено'), findsOneWidget);
+    expect(find.byKey(const Key('reset_filters')), findsOneWidget);
   });
 
   test('в списке фактов нет пустых и повторов', () {

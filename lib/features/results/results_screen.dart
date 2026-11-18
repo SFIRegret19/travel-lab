@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/format/formatters.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/error_state.dart';
 import '../search/search_provider.dart';
 import 'results_state.dart';
 import 'widgets/filter_chips_bar.dart';
@@ -27,39 +26,22 @@ class ResultsScreen extends ConsumerStatefulWidget {
 }
 
 class _ResultsScreenState extends ConsumerState<ResultsScreen> {
-  Timer? _timer;
-  bool _loading = false;
-  String _fact = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _startLoading();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _startLoading() {
-    _timer?.cancel();
-    final duration = ref.read(resultsLoadDurationProvider);
-    _loading = duration > Duration.zero;
-    if (!_loading) return;
-    _fact = randomLoadingFact();
-    _timer = Timer(duration, () {
-      if (mounted) setState(() => _loading = false);
-    });
-  }
+  String _fact = randomLoadingFact();
 
   @override
   Widget build(BuildContext context) {
-    // Поиск изменили (правка из шапки): выдача «перезагружается».
-    ref.listen(searchProvider, (_, _) => setState(_startLoading));
+    // На каждую новую загрузку (первый вход, правка поиска, «Повторить»)
+    // выбираем новый случайный факт.
+    ref.listen(searchResultsProvider, (prev, next) {
+      if (next.isLoading && !(prev?.isLoading ?? false)) {
+        setState(() => _fact = randomLoadingFact());
+      }
+    });
 
     final params = ref.watch(searchProvider);
+    final results = ref.watch(searchResultsProvider);
+    final loading = results.isLoading;
+    final error = !loading && results.hasError ? results.error : null;
     final hotels = ref.watch(resultsProvider);
     final favorites = ref.watch(favoritesProvider);
     final city = params.city ?? 'Везде';
@@ -74,7 +56,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
             backgroundColor: AppColors.surface,
             surfaceTintColor: Colors.transparent,
             clipBehavior: Clip.antiAlias,
-            shape: _loading
+            shape: loading || error != null
                 ? null
                 : const RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(
@@ -97,15 +79,28 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
             centerTitle: true,
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(FilterChipsBar.height),
-              child: _loading
-                  ? const LoadingChipsBar()
-                  : const FilterChipsBar(),
+              child: loading ? const LoadingChipsBar() : const FilterChipsBar(),
             ),
           ),
-          if (_loading)
+          if (loading)
             SliverFillRemaining(
               hasScrollBody: false,
               child: ResultsLoading(fact: _fact),
+            )
+          else if (error != null)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                child: ErrorState(
+                  error: error,
+                  onRetry: () => ref.invalidate(searchResultsProvider),
+                ),
+              ),
             )
           else ...[
             const SliverToBoxAdapter(child: MapBanner()),

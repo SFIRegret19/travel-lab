@@ -26,6 +26,10 @@ class MockAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+/// Riverpod по умолчанию сам повторяет упавшие запросы. Нам это мешает:
+/// ошибку нужно показать пользователю и дать кнопку «Повторить».
+Duration? noRetry(int retryCount, Object error) => null;
+
 final mockServerProvider = Provider<MockServer>(
   (ref) => MockServer(
     settings: () => ref.read(mockSettingsProvider),

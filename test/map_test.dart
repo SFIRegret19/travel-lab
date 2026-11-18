@@ -12,6 +12,8 @@ import 'package:travel_lab/features/results/results_state.dart';
 import 'package:travel_lab/features/search/search_params.dart';
 import 'package:travel_lab/features/search/search_provider.dart';
 
+import 'test_helpers.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -32,7 +34,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         todayProvider.overrideWithValue(DateTime(2026, 10, 26)),
-        resultsLoadDurationProvider.overrideWithValue(Duration.zero),
+        instantMockApi,
       ],
     );
     addTearDown(container.dispose);
@@ -109,7 +111,7 @@ void main() {
     for (final h in hotelsCatalog) {
       expect(
         find.byKey(Key('map_pin_${h.id}')),
-        expected.contains(h) ? findsOneWidget : findsNothing,
+        expected.any((e) => e.id == h.id) ? findsOneWidget : findsNothing,
         reason: h.id,
       );
     }

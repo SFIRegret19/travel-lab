@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../core/router/routes.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/error_state.dart';
 import '../../data/geo.dart';
 import '../../data/models/hotel.dart';
 import '../results/filters/filters_sheet.dart';
@@ -43,10 +44,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Widget build(BuildContext context) {
     final params = ref.watch(searchProvider);
     final hotels = ref.watch(resultsProvider);
-    final city = params.displayCity;
+    final results = ref.watch(searchResultsProvider);
+    final loading = results.isLoading;
+    final error = !loading && results.hasError ? results.error : null;
     final nights = params.nights;
-    final positions = {for (final h in hotels) h.id: hotelPosition(h, city)};
-    final center = cityCenter(city);
+    final center = cityCenter(params.displayCity);
+    final positions = {for (final h in hotels) h.id: h.location ?? center};
     final fit = _fit(positions.values.toList());
 
     Hotel? selected;
@@ -63,6 +66,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       body: Stack(
         children: [
           FlutterMap(
+            // Новый список отелей: карта пересоздаётся и охватывает все метки.
+            key: ValueKey(results.value),
             mapController: _controller,
             options: MapOptions(
               initialCenter: center,
@@ -104,6 +109,23 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ],
           ),
+          if (loading)
+            const Center(
+              child: CircularProgressIndicator(
+                key: Key('map_loading'),
+                color: AppColors.accent,
+              ),
+            ),
+          if (error != null)
+            Positioned.fill(
+              child: ColoredBox(
+                color: AppColors.background,
+                child: ErrorState(
+                  error: error,
+                  onRetry: () => ref.invalidate(searchResultsProvider),
+                ),
+              ),
+            ),
           Positioned(
             top: topInset + 12,
             left: 16,
@@ -142,7 +164,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ),
           ),
-          if (hotels.isEmpty)
+          if (!loading && error == null && hotels.isEmpty)
             const Center(
               child: _Notice('По выбранным фильтрам ничего не найдено'),
             ),
@@ -159,7 +181,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     child: SelectedHotelCard(
                       key: const Key('map_card'),
                       hotel: selected,
-                      city: city,
+                      city: params.displayCity,
                       nights: nights,
                       onTap: () => context.push(Routes.hotelPath(selected!.id)),
                     ),
