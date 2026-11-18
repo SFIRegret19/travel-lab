@@ -1,17 +1,67 @@
-# travel_lab
+# Travel Lab
 
-Travel Lab: учебный клон сценария бронирования отеля
+Учебный клон сценария бронирования отеля из «Яндекс Путешествий». Flutter, только Android. Автор: Спирин Ф. И.
 
-## Getting Started
+Сценарий: поиск → выдача (список и карта) → карточка отеля → номера → оформление → подтверждение.
+Сервера нет: ответы формирует заглушка внутри приложения, а контракт взаимодействия описан в OpenAPI.
 
-This project is a starting point for a Flutter application.
+## Запуск
 
-A few resources to get you started if this is your first Flutter project:
+```powershell
+flutter pub get
+flutter run
+flutter test
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Нужен Flutter 3.47 (Dart 3.13) и Android-устройство или эмулятор.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Клиент-серверное взаимодействие
+
+Спецификация: [`api/openapi.yaml`](api/openapi.yaml) (OpenAPI 3.0.3). Её можно открыть в [Swagger Editor](https://editor.swagger.io/) (File → Import file) или в VS Code с расширением OpenAPI (Swagger) Editor.
+
+| Запрос | Экран | Назначение |
+|---|---|---|
+| `GET /hotels` | Выдача, карта | Поиск отелей по параметрам |
+| `GET /hotels/{hotelId}` | Карточка отеля, отзывы | Описание, удобства, отзывы |
+| `GET /hotels/{hotelId}/rooms` | Номера | Номера и тарифы на даты |
+| `POST /bookings` | Оформление | Создание брони (заголовок `Idempotency-Key`) |
+| `GET /bookings/{bookingId}` | Подтверждение | Данные созданной брони |
+
+Ошибки приходят в единой схеме `Error` с кодом (`INVALID_PARAMETER`, `HOTEL_NOT_FOUND`, `OFFER_UNAVAILABLE`, `PRICE_CHANGED`, `VALIDATION_FAILED`, `INTERNAL_ERROR` и др.).
+Пустая выдача или отсутствие свободных номеров ошибкой не считается: это ответ 200 с пустым списком.
+
+## Как устроено
+
+```
+lib/
+  api/        клиент: TravelApi → Dio → MockAdapter → MockServer
+  core/       тема, маршруты, форматирование, общие виджеты
+  data/       модели и каталог отелей, номеров, отзывов
+  features/   экраны: home, search, results, map, hotel, rooms, checkout,
+              confirmation, demo
+api/openapi.yaml   контракт
+test/              виджет-тесты и контрактные тесты
+```
+
+- `lib/api/travel_api.dart` — пять методов по числу запросов; ошибки Dio превращаются в `ApiException`.
+- `lib/api/mock/` — сервер-заглушка: маршруты, валидация, коды ошибок, идемпотентность брони.
+- Данные между экранами передаются через провайдеры Riverpod, в маршрутах только идентификаторы.
+- Каждый экран показывает загрузку, ошибку с кнопкой «Повторить» и данные.
+
+## Демо-панель
+
+Долгое нажатие на заголовок «ОТДЫХ РЯДОМ» на главном экране открывает панель режимов заглушки:
+задержка ответа и переключатели «Нет сети», «Ошибка сервера», «Пустая выдача», «Нет свободных номеров»,
+«Номер раскуплен» (409), «Цена изменилась» (409), «Ошибка проверки полей» (422).
+Так состояния загрузки и ошибок показываются без правки кода.
+
+## Тесты
+
+`flutter test` запускает виджет-тесты сценария, состояний и ошибок, тесты слоя API и контрактные тесты:
+примеры из спецификации и ответы заглушки проверяются по схемам из `api/openapi.yaml`.
+
+## Ограничения
+
+- Вместо фотографий — градиенты-заглушки.
+- Отели, номера, отзывы и личные данные вымышлены.
+- Экран подтверждения придуман: в оригинале на этом шаге другой экран.
