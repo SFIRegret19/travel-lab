@@ -518,7 +518,11 @@ components:
       value:
         id: bk_5e8d2a
         number: TL-482915
-        hotel: { name: Автор на Павелецкой, street: Павелецкая набережная }
+        hotel:
+          name: Автор на Павелецкой
+          street: Павелецкая набережная
+          checkIn: { from: '14:00', to: '00:00' }
+          checkOut: { from: '00:00', to: '12:00' }
         room:
           title: Кровать в общем 8-местном номере для мужчин и женщин
           beds: 1 односпальная кровать
@@ -827,9 +831,11 @@ components:
 
     BookingHotel:
       type: object
-      required: [name, street]
+      required: [name, street, checkIn, checkOut]
       properties:
         name: { type: string }
+        checkIn: { $ref: '#/components/schemas/TimeWindow' }
+        checkOut: { $ref: '#/components/schemas/TimeWindow' }
         street:
           type: string
           example: Павелецкая набережная
